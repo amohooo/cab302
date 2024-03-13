@@ -21,14 +21,6 @@ import java.util.ResourceBundle;
 
 public class MainMenuController{
 
-
-//        public void setupUserInfo(String username, String role) {
-//            lblName.setText(username);
-//            // Show the register button only for the admin user
-//            btnRegst.setVisible("admin".equals(role));
-//        }
-
-
     @FXML
     private Button btnExplorer;
     @FXML
@@ -83,6 +75,22 @@ public class MainMenuController{
         }
     }
 
+    public void switchToRegisterScene(ActionEvent event) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/Register.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Register");
+            stage.setScene(new Scene(root1));
+            stage.setResizable(true);
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Error loading InternetExplorer.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void btnLogOutOnAction(ActionEvent e){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Logout");
@@ -92,6 +100,15 @@ public class MainMenuController{
         if(alert.showAndWait().get() == ButtonType.OK) {
             Stage stage = (Stage) btnLogOut.getScene().getWindow();
             stage.close();
+        }
+    }
+
+
+    public void setAccountType(String accType) {
+        if ("Admin".equals(accType)) {
+            btnRegst.setVisible(true);
+        } else {
+            btnRegst.setVisible(false);
         }
     }
 
