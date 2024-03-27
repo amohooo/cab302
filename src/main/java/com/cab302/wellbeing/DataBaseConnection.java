@@ -9,9 +9,9 @@ public class DataBaseConnection {
 
     public Connection getConnection(){
 
-        String databaseName = "WellBeing";
-        String databaseUser = "cab302";
-        String databasePassword ="cab302";
+        String databaseName = "wellbeing";
+        String databaseUser = "root";
+        String databasePassword ="Hmhzalk1";
         String url = "jdbc:mysql://127.0.0.1:3306/" + databaseName;
 
         try {

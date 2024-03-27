@@ -10,7 +10,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.WellBeingController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.WellBeingController">
    <top>
       <AnchorPane prefHeight="185.0" prefWidth="800.0" style="-fx-background-color: #002e53;" BorderPane.alignment="CENTER">
          <children>
@@ -55,7 +55,7 @@
             <PasswordField fx:id="txtPwd" layoutX="176.0" layoutY="220.0" promptText="Password" />
             <Button fx:id="btnLogin" layoutX="139.0" layoutY="283.0" mnemonicParsing="false" onAction="#lblLoginMsgOnAction" prefHeight="25.0" prefWidth="147.0" style="-fx-background-color: #002e53;" text="Login" textFill="WHITE" />
             <Button fx:id="btnExit" layoutX="279.0" layoutY="355.0" mnemonicParsing="false" onAction="#btnExitOnAction" prefHeight="25.0" prefWidth="77.0" style="-fx-background-color: #002e53;" text="Exit" textFill="WHITE" />
-            <Button fx:id="btnForget" layoutX="66.0" layoutY="330.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="147.0" style="-fx-background-color: transparent;" text="Forgot Password" textFill="#002e53">
+            <Button fx:id="btnForget" layoutX="66.0" layoutY="330.0" mnemonicParsing="false" onAction="#btnForgotPwdOnAction" prefHeight="25.0" prefWidth="147.0" style="-fx-background-color: transparent;" text="Forgot Password" textFill="#002e53">
                <font>
                   <Font name="Verdana" size="11.0" />
                </font>

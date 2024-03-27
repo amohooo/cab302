@@ -11,6 +11,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 public class InternetExplorer implements Initializable {
@@ -32,15 +33,33 @@ public class InternetExplorer implements Initializable {
     private WebEngine engine;
     private String homePage;
     private long startTime;
+    private long endTime;
+    private HashMap<String, Long> siteTimeSpent; // Tracks time spent per site
+    private long dailyUsageLimit; // Total daily usage limit in milliseconds
+    private HashMap<String, Long> siteUsageLimits; // Site-specific limits
 
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         startTime = System.currentTimeMillis();
+        siteTimeSpent = new HashMap<>();
+        siteUsageLimits = new HashMap<>();
+        // Example limit: 1 hour total daily usage.
+        dailyUsageLimit = 3600000;
+
+        // Example of setting a site-specific limit (30 minutes for youtube.com).
+        siteUsageLimits.put("www.youtube.com", 1800000L);
         engine = webView.getEngine();
         homePage = "www.google.com";
         txtAddr.setText(homePage);
         webZoom = 1;
         LoadPage();
+    }
+
+    private void updateAndCheckUsage(String site, long visitStartTime) {
+        long visitEndTime = System.currentTimeMillis();
+        long visitDuration = visitEndTime - visitStartTime;
+
+        // Update siteTimeSpent and check against siteUsageLimits and dailyUsageLimit
     }
     public void LoadPage(){
         engine.load("http://" + txtAddr.getText());
