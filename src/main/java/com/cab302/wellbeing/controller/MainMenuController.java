@@ -30,6 +30,7 @@ public class MainMenuController{
     Button btnRegst; // Assume this is your "Register" button
     @FXML
     Label lblName;
+
     public void displayName(String username) {
         lblName.setText(username);
         // Adjust UI based on user type
@@ -83,6 +84,8 @@ public class MainMenuController{
             stage.setTitle("Register");
             stage.setScene(new Scene(root1));
             stage.setResizable(true);
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
             stage.show();
 
         } catch (IOException e) {

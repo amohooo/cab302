@@ -12,10 +12,10 @@ public class WellBeingApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         try{
-            //FXMLLoader fxmlLoader = new FXMLLoader(WellBeingApplication.class.getResource("login.fxml"));
-            //Scene scene = new Scene(fxmlLoader.load(), 1000, 800);
-            Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
-            Scene scene = new Scene(root);
+            FXMLLoader fxmlLoader = new FXMLLoader(WellBeingApplication.class.getResource("login.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 1000, 800);
+            //Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
+            //Scene scene = new Scene(root);
 
             stage.setTitle("Well Being");
             stage.setScene(scene);

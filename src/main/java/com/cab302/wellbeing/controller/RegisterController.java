@@ -35,6 +35,12 @@ public class RegisterController {
     public void registerUser() {
         DataBaseConnection connectNow = new DataBaseConnection();
         Connection connectDB = connectNow.getConnection();
+        String username = txtUsername.getText();
+
+        if (usernameExists(username)) {
+            lblMsg.setText("Username already exists. Please choose a different one.");
+            return; // Exit the method if the username already exists
+        }
 
         String AccType = radbAdm.isSelected() ? "Admin" : "General";
 
@@ -69,16 +75,7 @@ public class RegisterController {
     }
 
     public void setBtnRgst(ActionEvent e) {
-        registerUser(); // Just call registerUser without parameters
-    }
-//    public void setBtnRgst(ActionEvent e){
-//        String FName = txtFName.getText();
-//        String LName = txtLName.getText();
-//        String Username = txtUsername.getText();
-//        String Password = txtPwd.getText();
-//        String Type = new String();
-//        registerUser(FName, LName, Username, Password, Type);
-//    }
+        registerUser(); }
     public void setBtnCncl(ActionEvent e){
         try {
             //FXMLLoader loader = new F
@@ -92,6 +89,28 @@ public class RegisterController {
             System.err.println("Error loading InternetExplorer.fxml: " + ex.getMessage());
             ex.printStackTrace();
         }
+    }
+    public boolean usernameExists(String username) {
+        DataBaseConnection connectNow = new DataBaseConnection();
+        Connection connectDB = connectNow.getConnection();
+
+        String query = "SELECT COUNT(*) FROM useraccount WHERE Username = ?";
+
+        try {
+            PreparedStatement preparedStatement = connectDB.prepareStatement(query);
+            preparedStatement.setString(1, username);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                return count > 0; // Return true if count is greater than 0, meaning the username exists
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false; // Return false if the username doesn't exist or an error occurs
     }
 
 }
