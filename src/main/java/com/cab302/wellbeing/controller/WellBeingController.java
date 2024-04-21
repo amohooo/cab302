@@ -17,7 +17,7 @@ import java.sql.ResultSet;
 
 public class WellBeingController {
     @FXML
-    private Button btnExit, btnLogOut;
+    private Button btnExit, btnLogOut, btnRegst;
     @FXML
     private TextField txtUsr;
     @FXML
@@ -38,7 +38,7 @@ public class WellBeingController {
 
             MainMenuController mainMenuController = loader.getController();
             mainMenuController.displayName(username);
-            mainMenuController.setAccountType(accType); // Set visibility of btnRegst based on account type
+//            mainMenuController.setAccountType(accType); // Set visibility of btnRegst based on account type
 
             scene = new Scene(root);
             stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
@@ -91,6 +91,38 @@ public class WellBeingController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+    public void switchToRegisterScene(ActionEvent event) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/Register.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Register");
+            stage.setScene(new Scene(root1));
+            stage.setResizable(true);
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Error loading InternetExplorer.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void openPasswordResetScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/PasswordReset.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.setTitle("Password Reset");
+            stage.show();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void btnForgotPwdOnAction(ActionEvent e) {
+        openPasswordResetScene();
     }
 
 }

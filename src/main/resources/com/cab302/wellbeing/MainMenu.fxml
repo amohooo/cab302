@@ -30,7 +30,6 @@
       <AnchorPane prefHeight="448.0" prefWidth="448.0" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="btnExplorer" layoutX="165.0" layoutY="43.0" mnemonicParsing="false" onAction="#switchToInternetScene" text="Internet Explorer" />
-            <Button fx:id="btnRegst" layoutX="165.0" layoutY="133.0" mnemonicParsing="false" onAction="#switchToRegisterScene" prefHeight="30.0" prefWidth="113.0" text="Register" />
          </children>
       </AnchorPane>
    </center>

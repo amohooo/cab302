@@ -12,8 +12,8 @@ public class WellBeingApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         try{
-            //FXMLLoader fxmlLoader = new FXMLLoader(WellBeingApplication.class.getResource("login.fxml"));
-            //Scene scene = new Scene(fxmlLoader.load(), 1000, 800);
+//            FXMLLoader fxmlLoader = new FXMLLoader(WellBeingApplication.class.getResource("login.fxml"));
+//            Scene scene = new Scene(fxmlLoader.load(), 1000, 800);
             Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
             Scene scene = new Scene(root);
 
@@ -26,6 +26,8 @@ public class WellBeingApplication extends Application {
         }
     }
     public static void main(String[] args) {
+        DataBaseConnection dbConnection = new DataBaseConnection();
+        dbConnection.initializeAndInsertUser();
         launch();
     }
 }

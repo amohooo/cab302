@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 public class RegisterController {
 
     @FXML
-    private TextField txtFName, txtLName, txtUsername, txtPwd;
+    private TextField txtFName, txtLName, txtUsername, txtPwd, txtEmail, txtRetp;
     @FXML
     private RadioButton radbGnrl, radbAdm;
     @FXML
@@ -37,24 +37,49 @@ public class RegisterController {
         Connection connectDB = connectNow.getConnection();
 
         String AccType = radbAdm.isSelected() ? "Admin" : "General";
+        String email = txtEmail.getText();
+        String Pwd = txtPwd.getText();
+        String Repwd = txtRetp.getText();
 
-        String registerUser = "INSERT INTO useraccount (FirstName, LastName, Username, Password, AccType) VALUES (?, ?, ?, ?, ?)";
+        String registerUser = "INSERT INTO useraccount (userName, firstName, lastName, password, emailAddress, accType) VALUES (?, ?, ?, ?, ?, ?)";
 
-        // Validation before attempting the insert
-        if (txtFName.getText().isBlank() || txtLName.getText().isBlank() || txtUsername.getText().isBlank() || txtPwd.getText().isBlank()) {
+        if (usernameExists(txtUsername.getText())) {
+            lblMsg.setText("Username already exists. Please choose a different one.");
+            return;
+        }
+
+        if (txtFName.getText().isBlank() || txtLName.getText().isBlank() || txtUsername.getText().isBlank() || txtPwd.getText().isBlank() || txtEmail.getText().isBlank() || txtRetp.getText().isBlank()) {
             lblMsg.setText("Please fill all the information above.");
-            return; // Exit the method if validation fails
+            return;
+        }
+
+        if (!email.contains("@")) {
+            lblMsg.setText("Invalid email format.");
+            return;
+        }
+
+        if (emailExists(txtEmail.getText())) {
+            lblMsg.setText("Email address already exists. Please fill in a different one.");
+            return;
+        }
+
+        if (Pwd.matches(Repwd)) {
+            lblMsg.setText("Email address matches.");
+        }else{
+            lblMsg.setText("Email address does not match, please type in the same Email address.");
+            return;
         }
 
         try {
             PreparedStatement preparedStatement = connectDB.prepareStatement(registerUser);
-            preparedStatement.setString(1, txtFName.getText());
-            preparedStatement.setString(2, txtLName.getText());
-            preparedStatement.setString(3, txtUsername.getText());
+            preparedStatement.setString(1, txtUsername.getText());
+            preparedStatement.setString(2, txtFName.getText());
+            preparedStatement.setString(3, txtLName.getText());
             preparedStatement.setString(4, txtPwd.getText());
-            preparedStatement.setString(5, AccType);
+            preparedStatement.setString(5, txtEmail.getText());
+            preparedStatement.setString(6, AccType);
 
-            int rowsAffected = preparedStatement.executeUpdate(); // Use executeUpdate for INSERT, UPDATE, DELETE
+            int rowsAffected = preparedStatement.executeUpdate();
 
             if (rowsAffected > 0) {
                 lblMsg.setText("Successfully registered.");
@@ -71,27 +96,54 @@ public class RegisterController {
     public void setBtnRgst(ActionEvent e) {
         registerUser(); // Just call registerUser without parameters
     }
-//    public void setBtnRgst(ActionEvent e){
-//        String FName = txtFName.getText();
-//        String LName = txtLName.getText();
-//        String Username = txtUsername.getText();
-//        String Password = txtPwd.getText();
-//        String Type = new String();
-//        registerUser(FName, LName, Username, Password, Type);
-//    }
-    public void setBtnCncl(ActionEvent e){
-        try {
-            //FXMLLoader loader = new F
-            Parent mainMenuParent = FXMLLoader.load(getClass().getResource("/com/cab302/wellbeing/MainMenu.fxml"));
-            Scene mainMenuScene = new Scene(mainMenuParent);
-            Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-            stage.setScene(mainMenuScene);
-            stage.show();
 
-        } catch (IOException ex) {
-            System.err.println("Error loading InternetExplorer.fxml: " + ex.getMessage());
-            ex.printStackTrace();
+    public void setBtnCncl(ActionEvent e){
+        // Get the current stage information using the source of the event
+        Stage window = (Stage) ((Node) e.getSource()).getScene().getWindow();
+        window.close(); // This closes the current window
+    }
+
+    public boolean usernameExists(String username) {
+        DataBaseConnection connectNow = new DataBaseConnection();
+        Connection connectDB = connectNow.getConnection();
+
+        String query = "SELECT COUNT(*) FROM useraccount WHERE Username = ?";
+
+        try {
+            PreparedStatement preparedStatement = connectDB.prepareStatement(query);
+            preparedStatement.setString(1, username);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                return count > 0; // Return true if count is greater than 0, meaning the username exists
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        return false; // Return false if the username doesn't exist or an error occurs
+    }
+
+    private boolean emailExists(String email) {
+        DataBaseConnection connectNow = new DataBaseConnection();
+        Connection connectDB = connectNow.getConnection();
+
+        String query = "SELECT COUNT(*) FROM useraccount WHERE emailAddress = ?";
+
+        try (PreparedStatement preparedStatement = connectDB.prepareStatement(query)) {
+            preparedStatement.setString(1, email);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1) > 0; // Returns true if count is greater than 0
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 }

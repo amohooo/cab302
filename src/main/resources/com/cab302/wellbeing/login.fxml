@@ -5,67 +5,89 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.WellBeingController">
-   <top>
-      <AnchorPane prefHeight="185.0" prefWidth="800.0" style="-fx-background-color: #002e53;" BorderPane.alignment="CENTER">
-         <children>
-            <Label alignment="CENTER" layoutX="32.0" layoutY="93.0" prefHeight="82.0" prefWidth="297.0" text="WELL BEING" textFill="WHITE">
-               <font>
-                  <Font name="Verdana Bold" size="38.0" />
-               </font>
-               <effect>
-                  <DropShadow />
-               </effect>
-            </Label>
-            <Line endX="190.0" layoutX="136.0" layoutY="93.0" startX="-100.0" stroke="WHITE" strokeLineCap="ROUND" strokeWidth="3.0">
-               <effect>
-                  <DropShadow />
-               </effect>
-            </Line>
-         </children>
-      </AnchorPane>
-   </top>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #009ee0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.WellBeingController">
    <left>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <AnchorPane prefHeight="459.0" prefWidth="144.0" BorderPane.alignment="CENTER" />
    </left>
-   <right>
+   <center>
       <AnchorPane prefHeight="415.0" prefWidth="481.0" BorderPane.alignment="CENTER">
          <children>
-            <Label alignment="CENTER" layoutX="176.0" layoutY="58.0" prefHeight="49.0" prefWidth="130.0" text="LOGIN" textFill="#002e53">
-               <font>
-                  <Font name="Verdana Bold" size="17.0" />
-               </font>
-            </Label>
-            <Label alignment="CENTER" layoutX="46.0" layoutY="208.0" prefHeight="49.0" prefWidth="130.0" text="Password" textFill="#002e53">
+            <Label alignment="CENTER" layoutX="46.0" layoutY="277.0" prefHeight="49.0" prefWidth="130.0" text="Password" textFill="#e4fcf5">
                <font>
                   <Font name="Verdana" size="16.0" />
                </font>
+               <effect>
+                  <DropShadow />
+               </effect>
             </Label>
-            <Label alignment="CENTER" layoutX="46.0" layoutY="139.0" prefHeight="49.0" prefWidth="130.0" text="Username" textFill="#002e53">
+            <Label alignment="CENTER" layoutX="46.0" layoutY="209.0" prefHeight="49.0" prefWidth="130.0" text="Username" textFill="#e4fcf5" textOverrun="LEADING_ELLIPSIS">
                <font>
                   <Font name="Verdana" size="16.0" />
                </font>
+               <effect>
+                  <DropShadow />
+               </effect>
             </Label>
-            <TextField fx:id="txtUsr" layoutX="176.0" layoutY="151.0" promptText="Username" />
-            <PasswordField fx:id="txtPwd" layoutX="176.0" layoutY="220.0" promptText="Password" />
-            <Button fx:id="btnLogin" layoutX="139.0" layoutY="283.0" mnemonicParsing="false" onAction="#lblLoginMsgOnAction" prefHeight="25.0" prefWidth="147.0" style="-fx-background-color: #002e53;" text="Login" textFill="WHITE" />
-            <Button fx:id="btnExit" layoutX="279.0" layoutY="355.0" mnemonicParsing="false" onAction="#btnExitOnAction" prefHeight="25.0" prefWidth="77.0" style="-fx-background-color: #002e53;" text="Exit" textFill="WHITE" />
-            <Button fx:id="btnForget" layoutX="66.0" layoutY="330.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="147.0" style="-fx-background-color: transparent;" text="Forgot Password" textFill="#002e53">
+            <TextField fx:id="txtUsr" layoutX="176.0" layoutY="221.0" onAction="#validateLogin" prefHeight="25.0" prefWidth="210.0" promptText="Username" />
+            <PasswordField fx:id="txtPwd" layoutX="176.0" layoutY="289.0" onAction="#validateLogin" prefHeight="26.0" prefWidth="208.0" promptText="Password" />
+            <Button fx:id="btnLogin" layoutX="201.0" layoutY="377.0" mnemonicParsing="false" onAction="#lblLoginMsgOnAction" prefHeight="51.0" prefWidth="117.0" style="-fx-background-color: #009ee0;" text="Login" textFill="#e4fcf5">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Button>
+            <Button fx:id="btnExit" layoutX="435.0" layoutY="420.0" mnemonicParsing="false" onAction="#btnExitOnAction" prefHeight="25.0" prefWidth="77.0" style="-fx-background-color: #009ee0;" text="Exit" textFill="#e4fcf5">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Button>
+            <Button fx:id="btnForget" layoutX="291.0" layoutY="334.0" mnemonicParsing="false" onAction="#btnForgotPwdOnAction" prefHeight="25.0" prefWidth="107.0" style="-fx-background-color: transparent;" text="Forgot Password" textFill="#e4fcf5">
                <font>
                   <Font name="Verdana" size="11.0" />
                </font>
             </Button>
-            <Label fx:id="lblLoginMsg" alignment="CENTER" layoutX="86.0" layoutY="107.0" prefHeight="17.0" prefWidth="329.0" textFill="#cc0e0e">
+            <Label alignment="CENTER" layoutX="111.0" layoutY="14.0" prefHeight="82.0" prefWidth="297.0" text="Welcome" textFill="#00ffb9" textOverrun="LEADING_ELLIPSIS">
                <font>
-                  <Font name="Verdana" size="12.0" />
+                  <Font name="Segoe Print Bold" size="38.0" />
                </font>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Label>
+            <Button fx:id="btnRegst" layoutX="322.0" layoutY="385.0" mnemonicParsing="false" onAction="#switchToRegisterScene" style="-fx-background-color: #009ee0;" text="Register" textFill="#e4fcf5">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Button>
+            <ImageView fx:id="imgLogo" fitHeight="120.0" fitWidth="121.0" layoutX="199.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true" smooth="false">
+               <image>
+                  <Image url="@image/My%20first%20design.png" />
+               </image>
+            </ImageView>
+            <Label fx:id="lblLoginMsg" layoutX="172.0" layoutY="192.0" prefHeight="17.0" prefWidth="218.0" textFill="RED" />
+         </children>
+      </AnchorPane>
+   </center>
+   <top>
+      <AnchorPane prefHeight="141.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" layoutX="27.0" layoutY="21.0" prefHeight="74.0" prefWidth="180.0" text="WELL BEING" textFill="#00ffb9">
+               <font>
+                  <Font name="Segoe Print Bold" size="24.0" />
+               </font>
+               <effect>
+                  <DropShadow />
+               </effect>
             </Label>
          </children>
       </AnchorPane>
+   </top>
+   <right>
+      <AnchorPane prefHeight="459.0" prefWidth="138.0" BorderPane.alignment="CENTER" />
    </right>
 </BorderPane>
