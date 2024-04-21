@@ -8,10 +8,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -24,13 +22,12 @@ public class MainMenuController{
     private Button btnExplorer;
     @FXML
     private Button btnLogOut;
-
     @FXML
-    Button btnRegst;
+    private Pane pnExplorer;
     @FXML
-    Label lblName;
-    public void displayName(String username) {
-        lblName.setText(username);
+    Label lblName, lblExplorer;
+    public void displayName(String firstName) {
+        lblName.setText(firstName + ", ");
         // Adjust UI based on user type
     }
     public void switchToInternetScene(ActionEvent event) {
