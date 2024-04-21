@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.SettingController">
+   <children>
+      <Button fx:id="btnMode" layoutX="125.0" layoutY="147.0" mnemonicParsing="false" onAction="#handleModeButton" text="Mode" />
+      <Button fx:id="btnSetTime" layoutX="378.0" layoutY="147.0" mnemonicParsing="false" onAction="#handleSetTimeButton" text="Set Time Limit" />
+   </children>
+</AnchorPane>

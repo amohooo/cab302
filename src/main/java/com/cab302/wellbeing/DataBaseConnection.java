@@ -51,7 +51,7 @@ public class DataBaseConnection {
     }
     private void createTables() {
         try (Statement statement = databaseLink.createStatement()) {
-            // Create useraccount table
+            // Existing tables
             String createUserAccountTableQuery = "CREATE TABLE IF NOT EXISTS useraccount ( "
                     + "userId INTEGER PRIMARY KEY AUTO_INCREMENT, "
                     + "userName VARCHAR(255) UNIQUE NOT NULL, "
@@ -64,18 +64,18 @@ public class DataBaseConnection {
                     + ")";
             statement.executeUpdate(createUserAccountTableQuery);
 
-            // Create BrowsingSessions table
-            String createBrowsingSessionsTableQuery = "CREATE TABLE IF NOT EXISTS BrowsingSessions ("
-                    + "SessionID INT AUTO_INCREMENT PRIMARY KEY, "
+            String createBrowsingDataQuery = "CREATE TABLE IF NOT EXISTS BrowsingData ("
+                    + "BrowsingID INT AUTO_INCREMENT PRIMARY KEY, "
                     + "UserID INT NOT NULL, "
+                    + "URL VARCHAR(2048) NOT NULL, "
                     + "StartTime DATETIME NOT NULL, "
                     + "EndTime DATETIME NOT NULL, "
-                    + "TotalTime INT AS (TIMESTAMPDIFF(MINUTE, StartTime, EndTime)), "
+                    + "SessionDate DATE NOT NULL, "
+                    + "Duration INT AS (TIMESTAMPDIFF(MINUTE, StartTime, EndTime)), "
                     + "FOREIGN KEY (UserID) REFERENCES useraccount(userId)"
                     + ")";
-            statement.executeUpdate(createBrowsingSessionsTableQuery);
+            statement.executeUpdate(createBrowsingDataQuery);
 
-            // Create Limits table
             String createLimitsTableQuery = "CREATE TABLE IF NOT EXISTS Limits ("
                     + "LimitID INT AUTO_INCREMENT PRIMARY KEY, "
                     + "UserID INT NOT NULL, "
@@ -86,7 +86,6 @@ public class DataBaseConnection {
                     + ")";
             statement.executeUpdate(createLimitsTableQuery);
 
-            // Create Notifications table
             String createNotificationsTableQuery = "CREATE TABLE IF NOT EXISTS Notifications ("
                     + "NotificationID INT AUTO_INCREMENT PRIMARY KEY, "
                     + "UserID INT NOT NULL, "

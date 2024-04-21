@@ -31,6 +31,8 @@ public class RegisterController {
     private Button btnRgst, btnCncl;
     @FXML
     private Label lblMsg;
+    @FXML
+    private CheckBox ckUser;
 
     public void registerUser() {
         DataBaseConnection connectNow = new DataBaseConnection();
@@ -100,6 +102,11 @@ public class RegisterController {
             return false;
         }
 
+        if (!ckUser.isSelected()) {
+            lblMsg.setText("You must agree to the user agreement to register.");
+            return false;
+        }
+
         return true;
     }
 
@@ -133,4 +140,20 @@ public class RegisterController {
         }
         return false;
     }
+    public void switchToUserAgreementScene(ActionEvent event) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/UserAgreement.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Explorer");
+            stage.setScene(new Scene(root1));
+            stage.setResizable(true);
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Error loading InternetExplorer.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

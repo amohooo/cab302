@@ -3,13 +3,17 @@ package com.cab302.wellbeing.controller;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -66,12 +70,19 @@ public class InternetExplorer implements Initializable {
             webZoom = 0;
         }
     }
-    public void displayHistory(){
-        history = engine.getHistory();;
-        ObservableList<WebHistory.Entry> entries = history.getEntries();
+    public void switchToHistoryScene(ActionEvent event) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/BrowsingHistory.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Explorer");
+            stage.setScene(new Scene(root1));
+            stage.setResizable(true);
+            stage.show();
 
-        for(WebHistory.Entry entry : entries){
-            System.out.println(entry.getUrl() + " " + entry.getLastVisitedDate());
+        } catch (IOException e) {
+            System.err.println("Error loading InternetExplorer.fxml: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

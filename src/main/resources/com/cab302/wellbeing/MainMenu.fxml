@@ -9,7 +9,7 @@
 
 <AnchorPane blendMode="MULTIPLY" prefHeight="711.0" prefWidth="841.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.MainMenuController">
    <children>
-      <Button fx:id="btnExplorer" layoutX="56.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#switchToInternetScene" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Internet Explorer" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+      <Button fx:id="btnExplorer" layoutX="56.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleInternetButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Internet Explorer" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Ink Free" size="30.0" />
          </font>
@@ -29,7 +29,7 @@
             <Font name="Snap ITC" size="24.0" />
          </font>
       </Label>
-      <Button fx:id="btnReport" layoutX="321.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Repot" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+      <Button fx:id="btnReport" layoutX="321.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleReportButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Repot" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Ink Free" size="30.0" />
          </font>
@@ -43,7 +43,7 @@
             <Insets />
          </opaqueInsets>
       </Button>
-      <Button fx:id="lblWebe" layoutX="585.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Wellbeing Tips" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+      <Button fx:id="btnWebe" layoutX="585.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleWebeButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Wellbeing Tips" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Ink Free" size="30.0" />
          </font>
@@ -57,7 +57,7 @@
             <Insets />
          </opaqueInsets>
       </Button>
-      <Button fx:id="btnUser" layoutX="56.0" layoutY="403.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="User profile" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+      <Button fx:id="btnUser" layoutX="56.0" layoutY="403.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleUserProfileButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="User profile" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Ink Free" size="30.0" />
          </font>
@@ -71,7 +71,7 @@
             <Insets />
          </opaqueInsets>
       </Button>
-      <Button fx:id="btnSetting" layoutX="321.0" layoutY="403.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Settings" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+      <Button fx:id="btnSetting" layoutX="321.0" layoutY="403.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleUserSettingButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Settings" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Ink Free" size="30.0" />
          </font>
@@ -85,7 +85,7 @@
             <Insets />
          </opaqueInsets>
       </Button>
-      <Button fx:id="btnContact" layoutX="585.0" layoutY="403.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Contact us" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+      <Button fx:id="btnContact" layoutX="585.0" layoutY="403.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleContactButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Contact us" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Ink Free" size="30.0" />
          </font>
