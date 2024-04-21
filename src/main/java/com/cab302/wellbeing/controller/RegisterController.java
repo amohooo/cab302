@@ -8,23 +8,23 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-
+import org.mindrot.jbcrypt.BCrypt;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class RegisterController {
 
     @FXML
-    private TextField txtFName, txtLName, txtUsername, txtPwd, txtEmail, txtRetp;
+    private TextField txtFName, txtLName, txtUsername, txtEmail;
+    @FXML
+    private PasswordField ptxtPwd,  ptxtRetp;
     @FXML
     private RadioButton radbGnrl, radbAdm;
     @FXML
@@ -37,45 +37,20 @@ public class RegisterController {
         Connection connectDB = connectNow.getConnection();
 
         String AccType = radbAdm.isSelected() ? "Admin" : "General";
-        String email = txtEmail.getText();
-        String Pwd = txtPwd.getText();
-        String Repwd = txtRetp.getText();
 
-        String registerUser = "INSERT INTO useraccount (userName, firstName, lastName, password, emailAddress, accType) VALUES (?, ?, ?, ?, ?, ?)";
-
-        if (usernameExists(txtUsername.getText())) {
-            lblMsg.setText("Username already exists. Please choose a different one.");
-            return;
+        if (!validateInputs()) {
+            return; // Exit if inputs are not valid
         }
 
-        if (txtFName.getText().isBlank() || txtLName.getText().isBlank() || txtUsername.getText().isBlank() || txtPwd.getText().isBlank() || txtEmail.getText().isBlank() || txtRetp.getText().isBlank()) {
-            lblMsg.setText("Please fill all the information above.");
-            return;
-        }
+        String hashedPassword = BCrypt.hashpw(ptxtPwd.getText(), BCrypt.gensalt());
 
-        if (!email.contains("@")) {
-            lblMsg.setText("Invalid email format.");
-            return;
-        }
+        String registerUser = "INSERT INTO useraccount (userName, firstName, lastName, passwordHash, emailAddress, accType) VALUES (?, ?, ?, ?, ?, ?)";
 
-        if (emailExists(txtEmail.getText())) {
-            lblMsg.setText("Email address already exists. Please fill in a different one.");
-            return;
-        }
-
-        if (Pwd.matches(Repwd)) {
-            lblMsg.setText("Email address matches.");
-        }else{
-            lblMsg.setText("Email address does not match, please type in the same Email address.");
-            return;
-        }
-
-        try {
-            PreparedStatement preparedStatement = connectDB.prepareStatement(registerUser);
+        try (PreparedStatement preparedStatement = connectDB.prepareStatement(registerUser)) {
             preparedStatement.setString(1, txtUsername.getText());
             preparedStatement.setString(2, txtFName.getText());
             preparedStatement.setString(3, txtLName.getText());
-            preparedStatement.setString(4, txtPwd.getText());
+            preparedStatement.setString(4, hashedPassword);
             preparedStatement.setString(5, txtEmail.getText());
             preparedStatement.setString(6, AccType);
 
@@ -83,67 +58,79 @@ public class RegisterController {
 
             if (rowsAffected > 0) {
                 lblMsg.setText("Successfully registered.");
+                closeWindow();
             } else {
                 lblMsg.setText("Registration failed. Please try again.");
             }
 
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             lblMsg.setText("Registration error: " + ex.getMessage());
         }
+    }
+    private void closeWindow() {
+        // You can use any FXML component here to get the scene and window. Using lblMsg as an example.
+        Stage stage = (Stage) lblMsg.getScene().getWindow();
+        stage.close();  // Closes the current window
+    }
+
+    private boolean validateInputs() {
+        if (txtFName.getText().isBlank() || txtLName.getText().isBlank() || txtUsername.getText().isBlank() || ptxtPwd.getText().isBlank() || txtEmail.getText().isBlank() || ptxtRetp.getText().isBlank()) {
+            lblMsg.setText("Please fill all the information above.");
+            return false;
+        }
+
+        if (!txtEmail.getText().contains("@")) {
+            lblMsg.setText("Invalid email format.");
+            return false;
+        }
+
+        if (!ptxtPwd.getText().equals(ptxtRetp.getText())) {
+            lblMsg.setText("Passwords do not match.");
+            return false;
+        }
+
+        if (usernameExists(txtUsername.getText())) {
+            lblMsg.setText("Username already exists. Please choose a different one.");
+            return false;
+        }
+
+        if (emailExists(txtEmail.getText())) {
+            lblMsg.setText("Email address already exists. Please fill in a different one.");
+            return false;
+        }
+
+        return true;
     }
 
     public void setBtnRgst(ActionEvent e) {
         registerUser(); // Just call registerUser without parameters
     }
 
-    public void setBtnCncl(ActionEvent e){
-        // Get the current stage information using the source of the event
-        Stage window = (Stage) ((Node) e.getSource()).getScene().getWindow();
-        window.close(); // This closes the current window
+    public void setBtnCncl(ActionEvent e) {
+        closeWindow();
     }
 
-    public boolean usernameExists(String username) {
-        DataBaseConnection connectNow = new DataBaseConnection();
-        Connection connectDB = connectNow.getConnection();
-
-        String query = "SELECT COUNT(*) FROM useraccount WHERE Username = ?";
-
-        try {
-            PreparedStatement preparedStatement = connectDB.prepareStatement(query);
-            preparedStatement.setString(1, username);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                int count = resultSet.getInt(1);
-                return count > 0; // Return true if count is greater than 0, meaning the username exists
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false; // Return false if the username doesn't exist or an error occurs
+    private boolean usernameExists(String username) {
+        return exists("Username", username);
     }
 
     private boolean emailExists(String email) {
-        DataBaseConnection connectNow = new DataBaseConnection();
-        Connection connectDB = connectNow.getConnection();
-
-        String query = "SELECT COUNT(*) FROM useraccount WHERE emailAddress = ?";
-
-        try (PreparedStatement preparedStatement = connectDB.prepareStatement(query)) {
-            preparedStatement.setString(1, email);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1) > 0; // Returns true if count is greater than 0
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
+        return exists("emailAddress", email);
     }
 
+    private boolean exists(String columnName, String value) {
+        try (Connection connectDB = new DataBaseConnection().getConnection();
+             PreparedStatement preparedStatement = connectDB.prepareStatement("SELECT COUNT(*) FROM useraccount WHERE " + columnName + " = ?")) {
+            preparedStatement.setString(1, value);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1) > 0; // True if count is greater than 0
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            lblMsg.setText("Failed to validate " + columnName + ": " + e.getMessage());
+        }
+        return false;
+    }
 }

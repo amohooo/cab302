@@ -9,11 +9,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-
+import org.mindrot.jbcrypt.BCrypt;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class WellBeingController {
     @FXML
@@ -29,15 +30,13 @@ public class WellBeingController {
     private Scene scene;
     private Stage stage;
 
-    private void switchToMainMenuScene(ActionEvent e, String accType) {
+    private void switchToMainMenuScene(ActionEvent e, String firstName, String accType) {
         try {
-            String username = txtUsr.getText();
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/MainMenu.fxml"));
             root = loader.load();
 
             MainMenuController mainMenuController = loader.getController();
-            mainMenuController.displayName(username);
+            mainMenuController.displayName(firstName);
 //            mainMenuController.setAccountType(accType); // Set visibility of btnRegst based on account type
 
             scene = new Scene(root);
@@ -72,24 +71,36 @@ public class WellBeingController {
         DataBaseConnection connectNow = new DataBaseConnection();
         Connection connectDB = connectNow.getConnection();
 
-        String verifyLogin = "SELECT count(1), AccType FROM useraccount WHERE UserName = ? AND Password = ? GROUP BY AccType";
+        String username = txtUsr.getText();
+        String password = txtPwd.getText();  // This is the plaintext password entered by the user
+
+        // Query to retrieve the hashed password and account type from the database for the given username
+        String fetchUserDetails = "SELECT passwordHash, AccType, firstName FROM useraccount WHERE UserName = ?";
 
         try {
-            PreparedStatement preparedStatement = connectDB.prepareStatement(verifyLogin);
-            preparedStatement.setString(1, txtUsr.getText());
-            preparedStatement.setString(2, txtPwd.getText());
+            PreparedStatement preparedStatement = connectDB.prepareStatement(fetchUserDetails);
+            preparedStatement.setString(1, username);
 
             ResultSet queryResult = preparedStatement.executeQuery();
 
-            if (queryResult.next() && queryResult.getInt(1) == 1) {
-                String accType = queryResult.getString("AccType"); // Get the account type
-                lblLoginMsg.setText("Welcome " + txtUsr.getText());
-                switchToMainMenuScene(e, accType); // Pass the account type
+            if (queryResult.next()) {
+                String storedHash = queryResult.getString("passwordHash"); // Retrieved hashed password
+                String accType = queryResult.getString("AccType");         // Account type
+                String firstName = queryResult.getString("firstName");
+
+                // Use BCrypt to check if the entered password matches the hashed password
+                if (BCrypt.checkpw(password, storedHash)) {
+                    lblLoginMsg.setText("Welcome " + firstName);
+                    switchToMainMenuScene(e, firstName, accType); // Pass the account type
+                } else {
+                    lblLoginMsg.setText("Your username or password is wrong");
+                }
             } else {
                 lblLoginMsg.setText("Your username or password is wrong");
             }
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
+            lblLoginMsg.setText("Failed to connect to database.");
         }
     }
     public void switchToRegisterScene(ActionEvent event) {

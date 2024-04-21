@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 
@@ -27,7 +28,7 @@ public class MainMenuController{
     @FXML
     Label lblName, lblExplorer;
     public void displayName(String firstName) {
-        lblName.setText(firstName + ", ");
+        lblName.setText(firstName + ", wish you are having a bright day!");
         // Adjust UI based on user type
     }
     public void switchToInternetScene(ActionEvent event) {
@@ -47,13 +48,28 @@ public class MainMenuController{
     }
     public void btnLogOutOnAction(ActionEvent e){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Logout");
-        alert.setHeaderText(("Logging out"));
-        alert.setContentText("Save?");
+        alert.setTitle("Logout Confirmation");
+        alert.setHeaderText("Logging out");
+        alert.setContentText("Are you sure you want to log out?");
 
-        if(alert.showAndWait().get() == ButtonType.OK) {
-            Stage stage = (Stage) btnLogOut.getScene().getWindow();
-            stage.close();
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                // Close the current window
+                Stage stage = (Stage) btnLogOut.getScene().getWindow();
+                stage.close();
+
+                // Load and display the login page
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/Login.fxml"));
+                Parent root = loader.load();
+                Stage loginStage = new Stage();
+                loginStage.setTitle("Login");
+                loginStage.setScene(new Scene(root));
+                loginStage.show();
+            } catch (IOException ex) {
+                System.err.println("Error loading Login.fxml: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
 }

@@ -88,18 +88,4 @@ public class InternetExplorer implements Initializable {
         history.go(1);
         txtAddr.setText(entries.get(history.getCurrentIndex()).getUrl());
     }
-
-    public void executeJS() {
-        engine.executeScript("window.location = \"https://www.youtube.com\";");
-        //ObservableList<WebHistory.Entry> entries = history.getEntries();
-        //txtAddr.setText(entries.get(history.getCurrentIndex()).getUrl());
-    }
-    public void onClose(ActionEvent event) {
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        System.out.println("Internet Explorer was open for " + duration + " milliseconds.");
-
-        Stage stage = (Stage) webView.getScene().getWindow();
-        stage.close();
-    }
 }

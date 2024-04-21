@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -19,7 +20,6 @@
             <TextField fx:id="txtFName" layoutX="350.0" layoutY="136.0" promptText="First Name" />
             <TextField fx:id="txtLName" layoutX="350.0" layoutY="174.0" promptText="Last Name" />
             <TextField fx:id="txtUsername" layoutX="350.0" layoutY="62.0" promptText="Username" />
-            <TextField fx:id="txtPwd" layoutX="350.0" layoutY="212.0" promptText="Password" />
             <Button fx:id="btnRgst" layoutX="378.0" layoutY="339.0" mnemonicParsing="false" onAction="#setBtnRgst" text="Register" />
             <Button fx:id="btnCncl" layoutX="456.0" layoutY="339.0" mnemonicParsing="false" onAction="#setBtnCncl" text="Cancel" />
             <RadioButton fx:id="radbAdm" layoutX="333.0" layoutY="286.0" mnemonicParsing="false" text="Admin" />
@@ -27,7 +27,8 @@
             <Label layoutX="295.0" layoutY="103.0" text="Email:" />
             <TextField fx:id="txtEmail" layoutX="350.0" layoutY="99.0" promptText="Email address" />
             <Label layoutX="246.0" layoutY="253.0" text="Re-type password:" />
-            <TextField fx:id="txtRetp" layoutX="350.0" layoutY="249.0" promptText="Re-type in password" />
+            <PasswordField fx:id="ptxtPwd" layoutX="350.0" layoutY="212.0" promptText="Password" />
+            <PasswordField fx:id="ptxtRetp" layoutX="350.0" layoutY="249.0" promptText="Re-type in password" />
          </children>
       </AnchorPane>
    </center>
