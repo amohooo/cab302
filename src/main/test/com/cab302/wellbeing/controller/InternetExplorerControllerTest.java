@@ -42,6 +42,11 @@ public class InternetExplorerControllerTest {
 
     private WebEngine webEngine;
 
+    public InternetExplorerControllerTest(Connection mockConnection, WebEngine webEngine) {
+        this.mockConnection = mockConnection;
+        this.webEngine = webEngine;
+    }
+
     @BeforeAll
     public static void setupAll() {
         // Initialize JavaFX toolkit
