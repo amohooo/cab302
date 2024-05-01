@@ -1,15 +1,9 @@
-package com.cab302.wellbeing.controller;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.cab302.wellbeing.DataBaseConnection;
+import com.cab302.wellbeing.controller.PasswordResetController;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +15,11 @@ import org.mockito.MockitoAnnotations;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 public class PasswordResetControllerTest {
 

@@ -1,10 +1,5 @@
-package com.cab302.wellbeing.controller;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.mockito.Mockito.*;
-
 import com.cab302.wellbeing.DataBaseConnection;
+import com.cab302.wellbeing.controller.MediaController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ChoiceBox;
@@ -13,13 +8,19 @@ import javafx.scene.media.MediaView;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 class MediaControllerTest {
 

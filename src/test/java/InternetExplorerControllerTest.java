@@ -1,28 +1,20 @@
-package com.cab302.wellbeing.controller;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.cab302.wellbeing.DataBaseConnection;
+import com.cab302.wellbeing.controller.InternetExplorerController;
 import javafx.application.Platform;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import org.junit.jupiter.api.*;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
-import javafx.scene.web.WebView;
-import javafx.stage.Stage;
-import org.junit.jupiter.api.*;
-import org.mockito.*;
 
 public class InternetExplorerControllerTest {
 

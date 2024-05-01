@@ -1,13 +1,14 @@
-package com.cab302.wellbeing.controller;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+import com.cab302.wellbeing.controller.MainMenuController;
 import javafx.application.Platform;
-import javafx.scene.control.*;
-import org.junit.jupiter.api.*;
-import org.mockito.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class MainMenuControllerTest {
