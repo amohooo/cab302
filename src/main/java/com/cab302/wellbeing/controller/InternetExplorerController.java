@@ -36,7 +36,7 @@ public class InternetExplorerController implements Initializable {
     Button btnZmOut;
     public double webZoom;
     private WebHistory history;
-    private WebEngine engine;
+    WebEngine engine;
     private String homePage;
     int userId;
     String firstName;

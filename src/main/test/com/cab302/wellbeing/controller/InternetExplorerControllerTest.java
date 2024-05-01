@@ -39,13 +39,13 @@ public class InternetExplorerControllerTest {
 
     @Mock
     private PreparedStatement mockPreparedStatement;
-
+    @Mock
     private WebEngine webEngine;
 
-    public InternetExplorerControllerTest(Connection mockConnection, WebEngine webEngine) {
-        this.mockConnection = mockConnection;
-        this.webEngine = webEngine;
-    }
+//    public InternetExplorerControllerTest(Connection mockConnection, WebEngine webEngine) {
+//        this.mockConnection = mockConnection;
+//        this.webEngine = webEngine;
+//    }
 
     @BeforeAll
     public static void setupAll() {
@@ -63,6 +63,7 @@ public class InternetExplorerControllerTest {
             webView = new WebView();
             internetExplorerController.webView = webView;  // Injecting a real WebView
             internetExplorerController.initialize(null, null);
+            webEngine = internetExplorerController.engine;
         });
     }
 
