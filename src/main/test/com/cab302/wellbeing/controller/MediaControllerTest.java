@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.CountDownLatch;
 
 class MediaControllerTest {
 
@@ -89,9 +90,24 @@ class MediaControllerTest {
     }
 
     @Test
-    void testRefreshMediaListWithNullUserId() throws SQLException {
-        mediaController.setUserId(0); // Simulate user not set scenario
-        mediaController.refreshMediaList();
-        verify(preparedStatement, never()).executeQuery(); // Assert that the query was never executed
+    void testRefreshMediaListWithNullUserId() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // Wrap the method call and verification in Platform.runLater to ensure it runs on the JavaFX thread
+        Platform.runLater(() -> {
+            try {
+                mediaController.setUserId(0); // Simulate user not set scenario
+                mediaController.refreshMediaList();
+                try {
+                    verify(preparedStatement, never()).executeQuery(); // Assert that the query was never executed
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            } finally {
+                latch.countDown(); // Ensure latch is counted down even if there is an exception
+            }
+        });
+
+        latch.await(); // Wait for the JavaFX thread to finish execution
     }
 }

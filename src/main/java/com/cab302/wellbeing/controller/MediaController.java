@@ -1,19 +1,6 @@
 package com.cab302.wellbeing.controller;
 
 import com.cab302.wellbeing.DataBaseConnection;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ResourceBundle;
-
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -30,6 +17,19 @@ import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ResourceBundle;
 
 public class MediaController implements Initializable {
     private int userId;
@@ -72,7 +72,7 @@ public class MediaController implements Initializable {
         if (file != null) {
             setupMediaPlayer(file.getAbsolutePath());
         } else {
-            setupMediaPlayer("src/main/resources/com/cab302/wellbeing/Media/Mental_Wellbeing.mp4");
+            setupMediaPlayer("src/main/resources/com/cab302/wellbeing/Media/MindRefresh.mp3");
         }
     }
     private void bindMediaPlayer() {
@@ -103,7 +103,7 @@ public class MediaController implements Initializable {
         delay.setOnFinished(event -> loadMediaFilesToChoiceBox());
         delay.play();
 
-        setupMediaPlayer("src/main/resources/com/cab302/wellbeing/Media/Mental_Wellbeing.mp4");
+        setupMediaPlayer("src/main/resources/com/cab302/wellbeing/Media/MindRefresh.mp3");
 
         // Delay window-related setup until the MediaView is displayed
         Platform.runLater(() -> {
@@ -170,12 +170,32 @@ public class MediaController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Upload Media");
         File file = fileChooser.showOpenDialog(null);
-        if (file != null) {
+        if (file != null && !checkFileExists(file.getName())) {
             String path = saveFileToServer(file);
+        } else {
+            System.out.println("File already exists or selection was cancelled.");
         }
     }
+
+    private boolean checkFileExists(String fileName) {
+        String query = "SELECT COUNT(*) FROM MediaFiles WHERE FileName = ? AND UserID = ? AND IsDeleted = FALSE";
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, fileName);
+            pstmt.setInt(2, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                return true; // File exists
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking file existence: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false; // File does not exist
+    }
+
     private String saveFileToServer(File file) {
-        String directoryPath = "uploadMedia";  // Set your server storage path
+        String directoryPath = "src/main/resources/com/cab302/wellbeing/Media/";  // Set your server storage path
         Path directory = Paths.get(directoryPath);
 
         try {
@@ -185,12 +205,16 @@ public class MediaController implements Initializable {
             // Define the target path for the file
             Path targetPath = directory.resolve(file.getName());
 
-            // Copy the file to the target directory, replacing existing file with the same name if it exists
-            Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-            String filePath = targetPath.toString();
-            saveFileMetadata(file, filePath);  // Assuming you have a method to save file metadata to a database
-            return filePath;
+            // Copy the file to the target directory, only if it does not exist
+            if (!Files.exists(targetPath)) {
+                Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+                String filePath = targetPath.toString();
+                saveFileMetadata(file, filePath);  // Assuming you have a method to save file metadata to a database
+                return filePath;
+            } else {
+                System.err.println("File already exists on server: " + file.getName());
+                return null;
+            }
         } catch (IOException e) {
             System.err.println("Failed to save the file: " + e.getMessage());
             e.printStackTrace();

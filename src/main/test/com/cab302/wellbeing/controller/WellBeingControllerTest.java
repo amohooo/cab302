@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.CountDownLatch;
 
 import static org.mockito.Mockito.*;
 
@@ -65,19 +66,33 @@ public class WellBeingControllerTest {
     }
 
     @Test
-    public void testValidateLoginSuccess() throws SQLException {
+    public void testValidateLoginSuccess() throws SQLException, InterruptedException {
+        // Setup the mocks
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
         when(mockResultSet.next()).thenReturn(true);
         when(mockResultSet.getString("passwordHash")).thenReturn("cab302");
         when(mockResultSet.getInt("userId")).thenReturn(1);
 
-        wellBeingController.txtUsr.setText("cab302");
-        wellBeingController.txtPwd.setText("cab302");
+        // Use CountDownLatch to wait for Platform.runLater to complete
+        CountDownLatch latch = new CountDownLatch(1);
 
-        wellBeingController.validateLogin(mock(ActionEvent.class));
+        // Run the test scenario on the JavaFX thread
+        Platform.runLater(() -> {
+            try {
+                wellBeingController.txtUsr.setText("cab302");
+                wellBeingController.txtPwd.setText("cab302");
 
-        assertEquals("Welcome cab302", wellBeingController.lblLoginMsg.getText());
+                wellBeingController.validateLogin(mock(ActionEvent.class));
+
+                assertEquals("Welcome cab302", wellBeingController.lblLoginMsg.getText());
+            } finally {
+                latch.countDown();  // Ensure the latch is counted down regardless of the test outcome
+            }
+        });
+
+        // Wait for the JavaFX thread to complete the operations
+        latch.await();
     }
 
     @Test

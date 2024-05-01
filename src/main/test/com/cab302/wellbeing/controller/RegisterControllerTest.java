@@ -14,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.CountDownLatch;
 
 public class RegisterControllerTest {
 
@@ -90,10 +91,21 @@ public class RegisterControllerTest {
     }
 
     @Test
-    public void testRegisterUser_SuccessfulRegistration() throws SQLException {
+    public void testRegisterUser_SuccessfulRegistration() throws SQLException, InterruptedException {
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-        registerController.registerUser();
-        assertEquals("Successfully registered.", registerController.lblMsg.getText());
+
+        // Use a CountDownLatch to wait for Platform.runLater to execute
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // Wrap interactions with JavaFX components in Platform.runLater
+        Platform.runLater(() -> {
+            registerController.registerUser();
+            assertEquals("Successfully registered.", registerController.lblMsg.getText());
+            latch.countDown(); // Decrease count of latch, releasing the await below
+        });
+
+        // Wait until the assertions have been checked in the JavaFX thread
+        latch.await();
     }
 
     @Test

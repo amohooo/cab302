@@ -2,6 +2,8 @@ package com.cab302.wellbeing.controller;
 
 import com.cab302.wellbeing.DataBaseConnection;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,22 +11,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.sql.Connection;
-import java.sql.SQLException;
 public class InternetExplorerController implements Initializable {
     @FXML
     public WebView webView;
@@ -54,12 +52,11 @@ public class InternetExplorerController implements Initializable {
         setupListeners();
         LoadPage();
 
-        // Correctly handle the closing of the window, set up once the stage is visible.
         Platform.runLater(() -> {
             Stage stage = (Stage) webView.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
-                endSession();
-                event.consume();
+                event.consume();  // Consume the event to prevent default behavior
+                endSession();  // Handles the cleanup and closes the window
             });
         });
     }
@@ -112,7 +109,7 @@ public class InternetExplorerController implements Initializable {
             pstmt.setString(2, url);
             pstmt.setTimestamp(3, start);
             pstmt.setTimestamp(4, end);
-            pstmt.setDate(5, new java.sql.Date(sessionDate.getTime()));
+            pstmt.setDate(5, new Date(sessionDate.getTime()));
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("SQL Exception: " + e.getMessage());
@@ -120,11 +117,13 @@ public class InternetExplorerController implements Initializable {
         }
     }
     public void endSession() {
+        engine.load("about:blank"); // Load a blank page to stop all activities
         endTime = System.currentTimeMillis();
         String currentUrl = engine.getLocation();
         storeBrowsingData(currentUrl, new Timestamp(startTime), new Timestamp(endTime), Date.valueOf(LocalDate.now()));
+
         Stage stage = (Stage) webView.getScene().getWindow();
-        stage.close();
+        stage.close(); // Close the current window.
     }
 
     public void refreshPage(){
