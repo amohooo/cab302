@@ -4,6 +4,12 @@ module com.cab302.wellbeing {
     requires java.sql;
     requires javafx.web;
     requires java.desktop;
+    requires jbcrypt;
+    requires javafx.media;
+    requires mockito.inline;
+    requires org.mockito;
+    requires javafx.graphics;
+    requires javafx.swing;
 
     opens com.cab302.wellbeing to javafx.fxml;
     exports com.cab302.wellbeing;

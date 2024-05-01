@@ -1,6 +1,8 @@
 package com.cab302.wellbeing.controller;
 
 import com.cab302.wellbeing.DataBaseConnection;
+import com.cab302.wellbeing.UserSession;
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,36 +11,41 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-
+import javafx.util.Duration;
+import org.mindrot.jbcrypt.BCrypt;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class WellBeingController {
     @FXML
-    private Button btnExit, btnLogOut, btnRegst;
+    public Button btnExit;
     @FXML
-    private TextField txtUsr;
+    Button btnLogOut;
     @FXML
-    private PasswordField txtPwd;
+    Button btnRegst;
     @FXML
-    private Label lblLoginMsg;
+    public TextField txtUsr;
+    @FXML
+    public PasswordField txtPwd;
+    @FXML
+    public Label lblLoginMsg;
 
     private Parent root;
     private Scene scene;
-    private Stage stage;
+    public Stage stage;
 
-    private void switchToMainMenuScene(ActionEvent e, String accType) {
+    private void switchToMainMenuScene(ActionEvent e, String firstName, String accType, int userId) {
         try {
-            String username = txtUsr.getText();
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/MainMenu.fxml"));
             root = loader.load();
 
             MainMenuController mainMenuController = loader.getController();
-            mainMenuController.displayName(username);
-//            mainMenuController.setAccountType(accType); // Set visibility of btnRegst based on account type
+            mainMenuController.displayName(firstName);
+            mainMenuController.setFirstName(firstName);
+            mainMenuController.setUserId(userId);
 
             scene = new Scene(root);
             stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
@@ -50,7 +57,6 @@ public class WellBeingController {
             ex.printStackTrace();
         }
     }
-
     public void btnExitOnAction(ActionEvent e) {
         Stage stage = (Stage) btnExit.getScene().getWindow();
         stage.close();
@@ -67,29 +73,47 @@ public class WellBeingController {
             validateLogin(e);
         }
     }
-
     public void validateLogin(ActionEvent e) {
         DataBaseConnection connectNow = new DataBaseConnection();
         Connection connectDB = connectNow.getConnection();
 
-        String verifyLogin = "SELECT count(1), AccType FROM useraccount WHERE UserName = ? AND Password = ? GROUP BY AccType";
+        String username = txtUsr.getText();
+        String password = txtPwd.getText();  // This is the plaintext password entered by the user
+
+        // Query to retrieve the user ID, hashed password, account type, and first name from the database for the given username
+        String fetchUserDetails = "SELECT userId, passwordHash, AccType, firstName FROM useraccount WHERE UserName = ?";
 
         try {
-            PreparedStatement preparedStatement = connectDB.prepareStatement(verifyLogin);
-            preparedStatement.setString(1, txtUsr.getText());
-            preparedStatement.setString(2, txtPwd.getText());
+            PreparedStatement preparedStatement = connectDB.prepareStatement(fetchUserDetails);
+            preparedStatement.setString(1, username);
 
             ResultSet queryResult = preparedStatement.executeQuery();
 
-            if (queryResult.next() && queryResult.getInt(1) == 1) {
-                String accType = queryResult.getString("AccType"); // Get the account type
-                lblLoginMsg.setText("Welcome " + txtUsr.getText());
-                switchToMainMenuScene(e, accType); // Pass the account type
+            if (queryResult.next()) {
+                int userId = queryResult.getInt("userId");  // Retrieve user ID
+                String storedHash = queryResult.getString("passwordHash"); // Retrieved hashed password
+                String accType = queryResult.getString("AccType");         // Account type
+                String firstName = queryResult.getString("firstName");
+
+                // Use BCrypt to check if the entered password matches the hashed password
+                if (BCrypt.checkpw(password, storedHash)) {
+                    lblLoginMsg.setText("Welcome " + firstName);
+                    ;
+                    // Set the current user ID in the UserSession
+                    UserSession.getInstance().setCurrentUserId(userId);
+                    PauseTransition delay = new PauseTransition(Duration.seconds(0.1)); // Introduce a delay before closing the window for the test purpose
+                    delay.setOnFinished(event -> switchToMainMenuScene(e, firstName, accType, userId));
+                    delay.play();
+
+                } else {
+                    lblLoginMsg.setText("Your username or password is wrong");
+                }
             } else {
                 lblLoginMsg.setText("Your username or password is wrong");
             }
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
+            lblLoginMsg.setText("Failed to connect to database.");
         }
     }
     public void switchToRegisterScene(ActionEvent event) {
