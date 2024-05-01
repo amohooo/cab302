@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx</artifactId>
-        <version>17-ea+6</version>
+        <version>22-ea+16</version>
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,19 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>17-ea+6</version>
+            <version>22-ea+16</version>
+            <classifier>${javafx.platform}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>22-ea+16</version>
+            <classifier>${javafx.platform}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>22-ea+16</version>
             <classifier>${javafx.platform}</classifier>
         </dependency>
         <dependency>
@@ -36,17 +48,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>17-ea+6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>19.0.2</version>
+            <version>23-ea+3</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>17.0.6</version>
+            <version>22-ea+16</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -102,7 +109,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.cab302.wellbeing/com.cab302.wellbeing.HelloApplication</mainClass>
+                            <mainClass>com.cab302.wellbeing</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
