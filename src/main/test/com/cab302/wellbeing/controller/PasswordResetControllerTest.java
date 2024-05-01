@@ -82,7 +82,7 @@ public class PasswordResetControllerTest {
 
     @Test
     public void testVerifyAnswers_IncorrectAnswers() throws Exception {
-        passwordResetController.txtEmailAdd.setText("@");
+        passwordResetController.txtEmailAdd.setText("cab302@qut.edu.au");
         passwordResetController.txtAn1.setText("wrongAnswer1");
         passwordResetController.txtAn2.setText("wrongAnswer2");
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
@@ -97,14 +97,14 @@ public class PasswordResetControllerTest {
 
     @Test
     public void testVerifyAnswers_CorrectAnswers() throws Exception {
-        passwordResetController.txtEmailAdd.setText("@");
-        passwordResetController.txtAn1.setText("1");
-        passwordResetController.txtAn2.setText("1");
+        passwordResetController.txtEmailAdd.setText("cab302@qut.edu.au");
+        passwordResetController.txtAn1.setText("cab302");
+        passwordResetController.txtAn2.setText("cab302");
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
         when(mockResultSet.next()).thenReturn(true); // Simulate email exists
-        when(mockResultSet.getString("Answer_1")).thenReturn(BCrypt.hashpw("1", BCrypt.gensalt()));
-        when(mockResultSet.getString("Answer_2")).thenReturn(BCrypt.hashpw("1", BCrypt.gensalt()));
+        when(mockResultSet.getString("Answer_1")).thenReturn(BCrypt.hashpw("cab302", BCrypt.gensalt()));
+        when(mockResultSet.getString("Answer_2")).thenReturn(BCrypt.hashpw("cab302", BCrypt.gensalt()));
 
         passwordResetController.verifyAnswers();
         assertEquals("Your answers are correct. You can now reset your password.", passwordResetController.lblVerify.getText());

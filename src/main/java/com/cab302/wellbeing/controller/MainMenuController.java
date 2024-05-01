@@ -95,7 +95,7 @@ public class MainMenuController{
                 controller.setFirstName(firstName);  // Pass the user ID to the InternetExplorer controller
             }
             if (sceneType == SceneType.WEBE) {
-                com.cab302.wellbeing.controller.WellBeingTipsController controller = fxmlLoader.getController();
+                WellBeingTipsController controller = fxmlLoader.getController();
                 controller.setUserId(userId);  // Pass the user ID
             }
             stage.setTitle(title);
