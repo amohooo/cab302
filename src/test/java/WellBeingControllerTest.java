@@ -47,6 +47,9 @@ public class WellBeingControllerTest {
     public static void setupAll() {
         try {
             if (!isPlatformInitialized) {
+                System.setProperty("java.awt.headless", "true");
+                System.setProperty("prism.order", "sw"); // Use software rendering
+                System.setProperty("headless.geometry", "1600x1200-32");
                 Platform.startup(() -> {
                     // Initialization logic that needs to run once JavaFX is initialized
                 });
