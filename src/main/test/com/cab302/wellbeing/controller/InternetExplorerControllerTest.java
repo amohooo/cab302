@@ -27,7 +27,7 @@ import org.mockito.*;
 public class InternetExplorerControllerTest {
 
     @InjectMocks
-    private InternetExplorerController internetExplorerController;
+    private static InternetExplorerController internetExplorerController;
 
     @Mock
     private DataBaseConnection mockDataBaseConnection;
@@ -40,17 +40,19 @@ public class InternetExplorerControllerTest {
     @Mock
     private PreparedStatement mockPreparedStatement;
     @Mock
-    private WebEngine webEngine;
+    private static WebEngine webEngine;
 
 //    public InternetExplorerControllerTest(Connection mockConnection, WebEngine webEngine) {
 //        this.mockConnection = mockConnection;
-//        this.webEngine = webEngine;
+//        webEngine = webEngine;
 //    }
 
     @BeforeAll
     public static void setupAll() {
         // Initialize JavaFX toolkit
-        Platform.startup(() -> {});
+        Platform.startup(() -> {
+            internetExplorerController.engine = webEngine;
+        });
     }
 
     @BeforeEach
@@ -63,7 +65,6 @@ public class InternetExplorerControllerTest {
             webView = new WebView();
             internetExplorerController.webView = webView;  // Injecting a real WebView
             internetExplorerController.initialize(null, null);
-            webEngine = internetExplorerController.engine;
         });
     }
 

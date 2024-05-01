@@ -37,7 +37,15 @@ public class RegisterControllerTest {
 
     @BeforeAll
     public static void setUpAll() throws SQLException {
-        Platform.startup(() -> registerController = new RegisterController());
+        // Check if the toolkit is already initialized
+        if (!Platform.isFxApplicationThread()) {
+            Platform.startup(() -> {
+                registerController = new RegisterController();
+            });
+        } else {
+            // If already initialized, just set up the controller
+            registerController = new RegisterController();
+        }
         realTestDbConnection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/wellbeing", "cab302", "cab302");
     }
 
