@@ -3,6 +3,7 @@ import com.cab302.wellbeing.controller.BrowsingHistoryController;
 import com.cab302.wellbeing.controller.InternetExplorerController;
 import javafx.application.Platform;
 import javafx.scene.control.*;
+import javafx.scene.web.WebEngine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -137,6 +138,13 @@ public class BrowsingHistoryControllerTest {
 
         // Ensure that any cleanup related to the JavaFX components is also performed on the JavaFX thread
         Platform.runLater(() -> {
+            if (internetExplorerController != null && internetExplorerController.webView != null) {
+                WebEngine engine = internetExplorerController.webView.getEngine();
+                if (engine != null) {
+                    engine.load(null);
+                }
+                internetExplorerController.webView = null;
+            }
             // If your controllers hold onto significant resources, dispose them appropriately
             if (internetExplorerController != null) {
                 internetExplorerController.webView.getEngine().load(null); // Unload any loaded content
