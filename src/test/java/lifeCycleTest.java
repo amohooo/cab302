@@ -1,6 +1,5 @@
 import com.cab302.wellbeing.DataBaseConnection;
-import com.cab302.wellbeing.controller.BrowsingHistoryController;
-import com.cab302.wellbeing.controller.InternetExplorerController;
+import com.cab302.wellbeing.controller.*;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
@@ -22,13 +21,40 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
-public class BrowsingHistoryControllerTest {
-
+public class lifeCycleTest {
+    // Inject the mocks into the controller
+    @InjectMocks
+    private static WellBeingController wellBeingController;
+    @InjectMocks
+    private static RegisterController registerController;
+    @InjectMocks
+    private PasswordResetController passwordResetController;
+    @InjectMocks
+    private UserAgreementController userAgreementController;
+    @InjectMocks
+    private MainMenuController mainMenuController;
     @InjectMocks
     private BrowsingHistoryController browsingHistoryController;
-
     @InjectMocks
     private InternetExplorerController internetExplorerController;
+    @InjectMocks
+    private ReportController reportController;
+    @InjectMocks
+    private WellBeingTipsController wellBeingTipsController;
+    @InjectMocks
+    private MediaController mediaController;
+    @InjectMocks
+    private OtherTipsController otherTipsController;
+    @InjectMocks
+    private ContactController contactController;
+    @InjectMocks
+    private UserProfileController userProfileController;
+    @InjectMocks
+    private SettingController settingController;
+    @InjectMocks
+    private ModeController modeController;
+    @InjectMocks
+    private SetTimeLimitController setTimeLimitController;
 
     @Mock
     private DataBaseConnection mockDataBaseConnection;
@@ -67,6 +93,8 @@ public class BrowsingHistoryControllerTest {
 
         // Initialize controllers within the JavaFX thread to avoid toolkit initialization errors
         Platform.runLater(() -> {
+
+
             internetExplorerController = new InternetExplorerController();
             internetExplorerController.txtAddr = new TextField("http://www.example.com");
             internetExplorerController.LoadPage(); // Ensure LoadPage() is called within the JavaFX thread

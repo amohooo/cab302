@@ -148,6 +148,5 @@ public class RegisterControllerTest {
                 realTestDbConnection.close();
             }
         }
-
     }
 }

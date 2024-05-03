@@ -136,7 +136,7 @@ public class DataBaseConnection {
                 + ")";
         statement.executeUpdate(createMediaFilesTableQuery);
     }
-    private void insertUser() {
+    public void insertUser() {
         String userName = "cab302";
         String firstName = "cab302";
         String lastName = "cab302";
@@ -222,7 +222,7 @@ public class DataBaseConnection {
             return -1; // Return -1 or handle appropriately
         }
     }
-    void insertQuestions() {
+    public void insertQuestions() {
         String[] questions = {
                 "What is the last name of your favourite high school teacher?",
                 "What is your oldest cousin’s first and last name?",
@@ -255,7 +255,7 @@ public class DataBaseConnection {
         }
     }
 
-    private void insertQuestions2() {
+    public void insertQuestions2() {
         String[] questions = {
                 "What is your mother’s maiden name?",
                 "What is your favourite colour?",
@@ -290,7 +290,7 @@ public class DataBaseConnection {
     }
 
     // Utility method to hash a password
-    private String hashPassword(String password) {
+    public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
     public void initializeAndInsertUser() {

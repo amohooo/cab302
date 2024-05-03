@@ -9,10 +9,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,8 +26,6 @@ import java.sql.SQLException;
 public class WellBeingController {
     @FXML
     public Button btnExit;
-    @FXML
-    Button btnLogOut;
     @FXML
     Button btnRegst;
     @FXML
@@ -58,8 +60,12 @@ public class WellBeingController {
         }
     }
     public void btnExitOnAction(ActionEvent e) {
+        // lblLoginMsg.setText("See you around!");
         Stage stage = (Stage) btnExit.getScene().getWindow();
-        stage.close();
+        PauseTransition delay = new PauseTransition(Duration.seconds(0.1)); // Introduce a delay before closing the window for the test purpose
+        delay.setOnFinished(event -> stage.close());
+        delay.play();
+
     }
 
     public void lblLoginMsgOnAction(ActionEvent e) {

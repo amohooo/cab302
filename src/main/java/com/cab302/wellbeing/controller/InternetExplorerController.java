@@ -36,28 +36,38 @@ public class InternetExplorerController implements Initializable {
     Button btnZmOut;
     public double webZoom;
     private WebHistory history;
-    public WebEngine engine;
+    public static WebEngine engine;
     private String homePage;
     int userId;
     String firstName;
     private long startTime, endTime;
     private DataBaseConnection dbConnection = new DataBaseConnection();
+    public void setEngine(WebEngine engine) {
+        this.engine = engine;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        engine = webView.getEngine();
-        homePage = "www.google.com";
-        txtAddr.setText(homePage);
-        webZoom = 1;
-        setupListeners();
-        LoadPage();
+        // Check if webView is not null
+        if (webView != null) {
+            engine = webView.getEngine();
+            setupListeners();
+            homePage = "http://www.google.com"; // Ensure URL is fully qualified
+            txtAddr.setText(homePage);
+            webZoom = 1;
+            LoadPage(); // Make sure this is called after everything is initialized
+        } else {
+            System.err.println("WebView is not initialized!");
+        }
 
         Platform.runLater(() -> {
-            Stage stage = (Stage) webView.getScene().getWindow();
-            stage.setOnCloseRequest(event -> {
-                event.consume();  // Consume the event to prevent default behavior
-                endSession();  // Handles the cleanup and closes the window
-            });
+            if (webView.getScene() != null) {
+                Stage stage = (Stage) webView.getScene().getWindow();
+                stage.setOnCloseRequest(event -> {
+                    event.consume();  // Consume the event to prevent default behavior
+                    endSession();  // Handles the cleanup and closes the window
+                });
+            }
         });
     }
     private void setupListeners() {
@@ -74,6 +84,10 @@ public class InternetExplorerController implements Initializable {
         });
     }
     public void LoadPage() {
+        if (engine == null) {
+            System.err.println("WebEngine is not initialized.");
+            return;
+        }
         startTime = System.currentTimeMillis();  // Record the start time when loading the page
         System.out.println("Page load started at: " + startTime);
 

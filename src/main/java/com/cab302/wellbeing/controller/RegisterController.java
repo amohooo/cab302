@@ -2,6 +2,7 @@ package com.cab302.wellbeing.controller;
 
 import com.cab302.wellbeing.DataBaseConnection;
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,33 +22,24 @@ import java.sql.SQLException;
 public class RegisterController {
 
     @FXML
-    public TextField txtFName;
+    public TextField txtFName, txtLName, txtUsername, txtEmail, txtA1, txtA2;
     @FXML
-    public TextField txtLName;
-    @FXML
-    public TextField txtUsername;
-    @FXML
-    public TextField txtEmail;
-    @FXML
-    public TextField txtA1;
-    @FXML
-    public TextField txtA2;
-    @FXML
-    public PasswordField ptxtPwd;
-    @FXML
-    public PasswordField ptxtRetp;
+    public PasswordField ptxtPwd, ptxtRetp;
     @FXML
     public RadioButton radbAdm;
     @FXML
     private Button btnRgst, btnCncl;
     @FXML
-    public ChoiceBox<String> chbQ1;
-    @FXML
-    public ChoiceBox<String> chbQ2;
+    public ChoiceBox<String> chbQ1, chbQ2;
     @FXML
     public Label lblMsg;
     @FXML
     public CheckBox ckUser;
+//    private DataBaseConnection dbConnection;
+//    public RegisterController(DataBaseConnection dbConnection) {
+//        this.dbConnection = dbConnection;  // Dependency injection of the database connection
+//    }
+
     @FXML
     public void initialize() {
         loadQuestionsToChoiceBox(chbQ1, "PwdQuestions1", "Question_1", "QuestionID_1");
@@ -67,26 +60,23 @@ public class RegisterController {
         }
     }
     public void registerUser() {
-        DataBaseConnection connectNow = new DataBaseConnection();
-        Connection connectDB = connectNow.getConnection();
-
-        String accType = radbAdm.isSelected() ? "Admin" : "General";
-
         if (!validateInputs()) {
             return; // Exit if inputs are not valid
         }
 
+        String accType = radbAdm.isSelected() ? "Admin" : "General";
         String hashedPassword = BCrypt.hashpw(ptxtPwd.getText(), BCrypt.gensalt());
         String question1 = chbQ1.getSelectionModel().getSelectedItem();
         String question2 = chbQ2.getSelectionModel().getSelectedItem();
-        int questionID1 = getQuestionID(question1, "PwdQuestions1", "Question_1", "QuestionID_1", connectDB);
-        int questionID2 = getQuestionID(question2, "PwdQuestions2", "Question_2", "QuestionID_2", connectDB);
-        String answer1 = BCrypt.hashpw(txtA1.getText(), BCrypt.gensalt());
-        String answer2 = BCrypt.hashpw(txtA2.getText(), BCrypt.gensalt());
 
-        String registerUser = "INSERT INTO useraccount (userName, firstName, lastName, passwordHash, emailAddress, QuestionID_1, QuestionID_2, Answer_1, Answer_2, accType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Use try-with-resources for managing database connection and prepared statement
+        try (Connection connectDB = new DataBaseConnection().getConnection();
+             PreparedStatement preparedStatement = connectDB.prepareStatement(
+                     "INSERT INTO useraccount (userName, firstName, lastName, passwordHash, emailAddress, QuestionID_1, QuestionID_2, Answer_1, Answer_2, accType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
-        try (PreparedStatement preparedStatement = connectDB.prepareStatement(registerUser)) {
+            int questionID1 = getQuestionID(question1, "PwdQuestions1", "Question_1", "QuestionID_1", connectDB);
+            int questionID2 = getQuestionID(question2, "PwdQuestions2", "Question_2", "QuestionID_2", connectDB);
+
             preparedStatement.setString(1, txtUsername.getText());
             preparedStatement.setString(2, txtFName.getText());
             preparedStatement.setString(3, txtLName.getText());
@@ -94,25 +84,31 @@ public class RegisterController {
             preparedStatement.setString(5, txtEmail.getText());
             preparedStatement.setInt(6, questionID1);
             preparedStatement.setInt(7, questionID2);
-            preparedStatement.setString(8, answer1);
-            preparedStatement.setString(9, answer2);
+            preparedStatement.setString(8, BCrypt.hashpw(txtA1.getText(), BCrypt.gensalt()));
+            preparedStatement.setString(9, BCrypt.hashpw(txtA2.getText(), BCrypt.gensalt()));
             preparedStatement.setString(10, accType);
 
             int rowsAffected = preparedStatement.executeUpdate();
 
             if (rowsAffected > 0) {
                 lblMsg.setText("Successfully registered.");
-                PauseTransition delay = new PauseTransition(Duration.seconds(0.2)); // Introduce a delay before closing the window for the test purpose
-                delay.setOnFinished(event -> closeWindow());;
-                delay.play();
+                closeWindowWithDelay();
             } else {
                 lblMsg.setText("Registration failed. Please try again.");
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
             lblMsg.setText("Registration error: " + ex.getMessage());
+            System.err.println("SQL error during registration: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
+
+    private void closeWindowWithDelay() {
+        PauseTransition delay = new PauseTransition(Duration.seconds(0.2)); // Introduce a delay before closing the window for UX reasons
+        delay.setOnFinished(event -> closeWindow());
+        delay.play();
+    }
+
 
     private int getQuestionID(String question, String tableName, String questionColumn, String idColumn, Connection connectDB) {
         String query = "SELECT " + idColumn + " FROM " + tableName + " WHERE " + questionColumn + " = ?";
@@ -132,10 +128,17 @@ public class RegisterController {
         }
     }
 
-    private void closeWindow() {
-        // You can use any FXML component here to get the scene and window. Using lblMsg as an example.
-        Stage stage = (Stage) lblMsg.getScene().getWindow();
-        stage.close();  // Closes the current window
+    public void closeWindow() {
+        if (lblMsg != null && lblMsg.getScene() != null) {
+            Stage stage = (Stage) lblMsg.getScene().getWindow();
+            if (stage != null) {
+                stage.close();
+            } else {
+                System.out.println("Stage is null, cannot close the window");
+            }
+        } else {
+            System.out.println("Scene is null or lblMsg is null, cannot close the window");
+        }
     }
 
     public boolean validateInputs() {

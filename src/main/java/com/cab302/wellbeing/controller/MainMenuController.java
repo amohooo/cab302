@@ -108,32 +108,6 @@ public class MainMenuController{
         }
     }
 
-//    public void btnLogOutOnAction(ActionEvent e){
-//        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//        alert.setTitle("Logout Confirmation");
-//        alert.setHeaderText("Logging out");
-//        alert.setContentText("Are you sure you want to log out?");
-//
-//        Optional<ButtonType> result = alert.showAndWait();
-//        if (result.isPresent() && result.get() == ButtonType.OK) {
-//            try {
-//                // Close the current window
-//                Stage stage = (Stage) btnLogOut.getScene().getWindow();
-//                stage.close();
-//
-//                // Load and display the login page
-//                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/Login.fxml"));
-//                Parent root = loader.load();
-//                Stage loginStage = new Stage();
-//                loginStage.setTitle("Login");
-//                loginStage.setScene(new Scene(root));
-//                loginStage.show();
-//            } catch (IOException ex) {
-//                System.err.println("Error loading Login.fxml: " + ex.getMessage());
-//                ex.printStackTrace();
-//            }
-//        }
-//    }
     protected Alert createAlert(Alert.AlertType alertType, String title, String header, String content) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
