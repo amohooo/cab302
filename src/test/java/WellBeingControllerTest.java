@@ -1,5 +1,4 @@
 import com.cab302.wellbeing.DataBaseConnection;
-import com.cab302.wellbeing.controller.RegisterController;
 import com.cab302.wellbeing.controller.WellBeingController;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -10,17 +9,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.junit.jupiter.api.*;
+import org.mockito.*;
+import java.sql.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +35,6 @@ public class WellBeingControllerTest {
     @Mock
     private ResultSet mockResultSet;
 
-
     private static boolean isPlatformInitialized = false;
 
     @BeforeAll
@@ -64,21 +54,28 @@ public class WellBeingControllerTest {
     @BeforeEach
     public void setUp() throws SQLException {
         MockitoAnnotations.openMocks(this);
-        Scene mockScene = mock(Scene.class);
-        Stage mockStage = mock(Stage.class);
-
-        when(mockDataBaseConnection.getConnection()).thenReturn(mockConnection);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-
         Platform.runLater(() -> {
+            // Create a root pane and scene for testing
+            Group root = new Group();
+            Scene scene = new Scene(root, 800, 600);
+
+            // Initialize controller and UI components
+            wellBeingController = new WellBeingController();
             wellBeingController.txtUsr = new TextField();
             wellBeingController.txtPwd = new PasswordField();
             wellBeingController.lblLoginMsg = new Label();
             wellBeingController.btnExit = new Button();
 
-            when(mockScene.getWindow()).thenReturn(mockStage);
-            // Removed the incorrect method call
+            // Add components to the root pane
+            root.getChildren().addAll(wellBeingController.txtUsr, wellBeingController.txtPwd, wellBeingController.lblLoginMsg, wellBeingController.btnExit);
+
+            // Set up and show the stage for testing
+            Stage mockStage = new Stage();
+            mockStage.setScene(scene);
+            mockStage.show();  // Ensure the stage is shown
+
+            // Manually set the controller's stage reference if necessary
+            wellBeingController.stage = mockStage;
         });
         waitForFxThreads();
     }
@@ -93,6 +90,66 @@ public class WellBeingControllerTest {
         }
     }
 
+    @Test
+    public void testUserLifecycle() throws InterruptedException, SQLException {
+        setupMockDatabaseResponses();
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Platform.runLater(() -> {
+            try {
+                // Simulate user entering correct credentials and logging in
+                simulateLogin("cab302", "cab302");
+
+                // Schedule another runLater to ensure all UI and event processing completes
+                Platform.runLater(() -> {
+                    // Attempt to close the stage
+                    wellBeingController.btnExit.fire();
+
+                    // Delay execution to allow UI to update
+                    new java.util.Timer().schedule(
+                            new java.util.TimerTask() {
+                                @Override
+                                public void run() {
+                                    Platform.runLater(() -> {
+                                        try {
+                                            // Check if the stage is still visible
+                                            boolean visible = wellBeingController.stage.isShowing();
+                                            assertFalse(visible, "Stage should not be visible after exit action.");
+
+                                        } finally {
+                                            latch.countDown();
+                                        }
+                                    });
+                                }
+                            },
+                            500 // Delay in milliseconds
+                    );
+                });
+
+            } catch (Exception e) {
+                latch.countDown();
+                throw e;
+            }
+        });
+
+        latch.await();
+    }
+
+    private void simulateLogin(String username, String password) {
+        wellBeingController.txtUsr.setText(username);
+        wellBeingController.txtPwd.setText(password);
+        wellBeingController.validateLogin(new ActionEvent());
+        assertEquals("Welcome " + username, wellBeingController.lblLoginMsg.getText());
+    }
+
+    private void setupMockDatabaseResponses() throws SQLException {
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getString("passwordHash")).thenReturn("correctHash");
+        when(mockResultSet.getInt("userId")).thenReturn(1);
+    }
     @Test
     public void testValidateLoginSuccess() throws SQLException, InterruptedException {
         // Setup the mocks
@@ -137,21 +194,13 @@ public class WellBeingControllerTest {
         assertEquals("Your username or password is wrong", wellBeingController.lblLoginMsg.getText());
     }
 
-//    @Test
-//    public void testBtnExitOnAction() throws InterruptedException {
-//        CountDownLatch latch = new CountDownLatch(1);
-//
-//        // Schedule the test execution on the JavaFX thread
+    @AfterAll
+    public static void tearDown() {
 //        Platform.runLater(() -> {
-//            try {
-//                wellBeingController.btnExitOnAction(mock(ActionEvent.class));
-//                assertEquals("See you around!", wellBeingController.lblLoginMsg.getText());
-//            } finally {
-//                latch.countDown(); // Make sure to count down the latch irrespective of success or failure
+//            Stage stage = (Stage) wellBeingController.btnExit.getScene().getWindow();
+//            if (stage != null) {
+//                stage.close();
 //            }
 //        });
-//
-//        // Wait for JavaFX operations to complete
-//        assertTrue(latch.await(5, TimeUnit.SECONDS), "Timeout waiting for FX runtime to complete.");
-//    }
+    }
 }
