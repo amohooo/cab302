@@ -52,7 +52,7 @@ public class InternetExplorerController implements Initializable {
         if (webView != null) {
             engine = webView.getEngine();
             setupListeners();
-            homePage = "http://www.google.com"; // Ensure URL is fully qualified
+            homePage = "www.google.com"; // Ensure URL is fully qualified
             txtAddr.setText(homePage);
             webZoom = 1;
             LoadPage(); // Make sure this is called after everything is initialized
@@ -194,8 +194,9 @@ public class InternetExplorerController implements Initializable {
             startTime = System.currentTimeMillis();  // Reset start time
         }
     }
-    public void forward(){
-        if (history.getCurrentIndex() < history.getEntries().size() - 1) {  // Ensure there is a history to go forward to
+    public void forward() {
+        WebHistory history = engine.getHistory();
+        if (history != null && history.getCurrentIndex() < history.getEntries().size() - 1) {
             endTime = System.currentTimeMillis();
             long duration = endTime - startTime;  // Calculate the duration
             String currentUrl = engine.getLocation();  // Get the current URL before going forward
@@ -204,10 +205,13 @@ public class InternetExplorerController implements Initializable {
             storeBrowsingData(currentUrl, new Timestamp(startTime), new Timestamp(endTime), Date.valueOf(LocalDate.now()));
 
             // Navigate forward
-            history = engine.getHistory();
             history.go(1);
             txtAddr.setText(history.getEntries().get(history.getCurrentIndex()).getUrl());
             startTime = System.currentTimeMillis();  // Reset start time
         }
+    }
+
+    public void setDbConnection(DataBaseConnection mockDataBaseConnection) {
+        this.dbConnection = mockDataBaseConnection;
     }
 }

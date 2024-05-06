@@ -86,7 +86,7 @@ public class MainMenuController{
 
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Parent root1 = fxmlLoader.load();
+            Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             // Check if the scene is INTERNET and then set the user ID
             if (sceneType == SceneType.INTERNET) {
@@ -99,7 +99,7 @@ public class MainMenuController{
                 controller.setUserId(userId);  // Pass the user ID
             }
             stage.setTitle(title);
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(root));
             stage.setResizable(true);
             stage.show();
         } catch (IOException e) {

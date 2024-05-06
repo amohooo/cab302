@@ -1,7 +1,11 @@
 import com.cab302.wellbeing.DataBaseConnection;
 import com.cab302.wellbeing.controller.RegisterController;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,11 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
@@ -24,10 +29,10 @@ public class RegisterControllerTest {
     private static RegisterController registerController;
 
     @Mock
-    private static DataBaseConnection mockDataBaseConnection;
+    static DataBaseConnection mockDataBaseConnection;
 
     @Mock
-    private static Connection mockConnection;
+    static Connection mockConnection;
 
     @Mock
     private PreparedStatement mockPreparedStatement;
@@ -54,12 +59,7 @@ public class RegisterControllerTest {
         realTestDbConnection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/wellbeing", "cab302", "cab302");
     }
 
-    @BeforeEach
-    public void setUp() throws SQLException {
-        MockitoAnnotations.openMocks(this);
-        when(mockDataBaseConnection.getConnection()).thenReturn(mockConnection);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-
+    private void setinitialData() throws SQLException {
         registerController.txtFName = new TextField();
         registerController.txtLName = new TextField();
         registerController.txtUsername = new TextField();
@@ -74,6 +74,46 @@ public class RegisterControllerTest {
         registerController.radbAdm = new RadioButton();
         registerController.ckUser = new CheckBox();
         setupValidInputs();
+    }
+    @BeforeEach
+    public void setUp() throws Exception {
+        // Initialize Mockito annotations
+        MockitoAnnotations.openMocks(this);
+
+        // Run initialization on the JavaFX thread to handle UI components
+        final CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            try {
+                // Load the FXML file just like the application does
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("Register.fxml"));
+                Parent root = loader.load();  // Ensure the path is correct and accessible during testing
+
+                // Get the controller from the loader
+                registerController = loader.getController();
+                assertNotNull(registerController, "Controller must not be null after loading.");
+
+                // Setup the scene and stage if necessary (useful for interaction tests)
+                Scene scene = new Scene(root);
+                Stage mockStage = new Stage();
+                mockStage.setScene(scene);
+                mockStage.show();
+
+                // Mock database connections or other dependencies
+                when(mockDataBaseConnection.getConnection()).thenReturn(mockConnection);
+                when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+
+                // Prepare controller with necessary initial data or state
+                setinitialData();  // If exists, to set up necessary initial state or data
+            } catch (IOException | SQLException e) {
+                e.printStackTrace();
+                fail("Failed to load FXML or initialize the controller: " + e.getMessage());
+            } finally {
+                latch.countDown();  // Decrement latch count to indicate completion
+            }
+        });
+
+        // Wait for all JavaFX operations to complete
+        assertTrue(latch.await(5, TimeUnit.SECONDS), "Timeout waiting for FX platform setup.");
     }
 
     private void setupValidInputs() {

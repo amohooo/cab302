@@ -42,16 +42,24 @@ public class WellBeingController {
     private void switchToMainMenuScene(ActionEvent e, String firstName, String accType, int userId) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/MainMenu.fxml"));
-            root = loader.load();
+            Parent root = loader.load();
 
             MainMenuController mainMenuController = loader.getController();
             mainMenuController.displayName(firstName);
             mainMenuController.setFirstName(firstName);
             mainMenuController.setUserId(userId);
 
-            scene = new Scene(root);
-            stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-            stage.setScene(scene);
+            //Scene scene = new Scene(root);
+            Stage stage;
+
+            if (e != null) {
+                stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+            } else {
+                stage = (Stage) lblLoginMsg.getScene().getWindow();  // Fallback to the current stage
+            }
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("Main Menu");
             stage.show();
 
         } catch (IOException ex) {
@@ -104,11 +112,10 @@ public class WellBeingController {
                 // Use BCrypt to check if the entered password matches the hashed password
                 if (BCrypt.checkpw(password, storedHash)) {
                     lblLoginMsg.setText("Welcome " + firstName);
-                    ;
-                    // Set the current user ID in the UserSession
                     UserSession.getInstance().setCurrentUserId(userId);
-                    PauseTransition delay = new PauseTransition(Duration.seconds(0.1)); // Introduce a delay before closing the window for the test purpose
-                    delay.setOnFinished(event -> switchToMainMenuScene(e, firstName, accType, userId));
+
+                    PauseTransition delay = new PauseTransition(Duration.seconds(0.1));
+                    delay.setOnFinished(event -> switchToMainMenuScene(e, firstName, accType, userId));  // `e` can be `null`
                     delay.play();
 
                 } else {
@@ -125,10 +132,10 @@ public class WellBeingController {
     public void switchToRegisterScene(ActionEvent event) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/Register.fxml"));
-            Parent root1 = fxmlLoader.load();
+            Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("Register");
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(root));
             stage.setResizable(true);
             stage.show();
 

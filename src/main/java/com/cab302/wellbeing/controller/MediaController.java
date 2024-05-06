@@ -47,6 +47,9 @@ public class MediaController implements Initializable {
     private boolean isPlayed = false;
 
     private DataBaseConnection dbConnection;
+    public void setDbConnection(DataBaseConnection dbConnection) {
+        this.dbConnection = dbConnection;
+    }
 
     private void setupMediaPlayer(String filePath) {
         File mediaFile = new File(filePath);
@@ -124,7 +127,7 @@ public class MediaController implements Initializable {
             }
         });
     }
-    private void loadMedia(String fileName) {
+    public void loadMedia(String fileName) {
         if (userId == 0) {  // Assuming userId is 0 when not set
             System.out.println("No user ID provided");
             return; // Exit the method if userId is not set
