@@ -75,7 +75,7 @@ public class MediaController implements Initializable {
         if (file != null) {
             setupMediaPlayer(file.getAbsolutePath());
         } else {
-            setupMediaPlayer("src/main/resources/com/cab302/wellbeing/Media/MindRefresh.mp3");
+            setupMediaPlayer("/MediaFile/MindRefresh.mp3");
         }
     }
     private void bindMediaPlayer() {
@@ -106,7 +106,7 @@ public class MediaController implements Initializable {
         delay.setOnFinished(event -> loadMediaFilesToChoiceBox());
         delay.play();
 
-        setupMediaPlayer("src/main/resources/com/cab302/wellbeing/Media/MindRefresh.mp3");
+        setupMediaPlayer(null);
 
         // Delay window-related setup until the MediaView is displayed
         Platform.runLater(() -> {
@@ -179,7 +179,61 @@ public class MediaController implements Initializable {
             System.out.println("File already exists or selection was cancelled.");
         }
     }
+    @FXML
+    private void deleteMedia() {
+        String fileName = chbMedia.getValue();  // Assuming chbMedia is a ComboBox with file names
+        if (fileName != null) {
+            // Retrieve the file path from the database before deletion
+            String querySelect = "SELECT FilePath FROM MediaFiles WHERE FileName = ? AND UserID = ?";
+            String queryDelete = "DELETE FROM MediaFiles WHERE FileName = ? AND UserID = ?";
 
+            try (Connection conn = dbConnection.getConnection();
+                 PreparedStatement pstmtSelect = conn.prepareStatement(querySelect);
+                 PreparedStatement pstmtDelete = conn.prepareStatement(queryDelete)) {
+
+                // Retrieve the file path
+                pstmtSelect.setString(1, fileName);
+                pstmtSelect.setInt(2, userId);
+                ResultSet rs = pstmtSelect.executeQuery();
+                String filePath = null;
+                if (rs.next()) {
+                    filePath = rs.getString("FilePath");
+                }
+
+                if (filePath == null) {
+                    System.err.println("File not found in database: " + fileName);
+                    return;
+                }
+
+                // Delete from database
+                pstmtDelete.setString(1, fileName);
+                pstmtDelete.setInt(2, userId);
+                int affectedRows = pstmtDelete.executeUpdate();
+
+//                if (affectedRows > 0) {
+//                    // Delete the physical file from server location
+//                    Path pathToDelete = Paths.get(filePath);
+//                    try {
+//                        Files.deleteIfExists(pathToDelete);
+//                        System.out.println("File deleted successfully from server and database: " + fileName);
+//                    } catch (IOException e) {
+//                        System.err.println("Failed to delete file from server: " + filePath);
+//                        e.printStackTrace();
+//                    }
+//                    refreshMediaList();  // Assuming this method refreshes the ComboBox or media list
+//                } else {
+//                    System.err.println("Failed to delete file from database: " + fileName);
+//                }
+//
+//            } catch (SQLException e) {
+//                System.err.println("Error deleting media file from database: " + e.getMessage());
+//                e.printStackTrace();
+//            }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
     private boolean checkFileExists(String fileName) {
         String query = "SELECT COUNT(*) FROM MediaFiles WHERE FileName = ? AND UserID = ? AND IsDeleted = FALSE";
         try (Connection conn = dbConnection.getConnection();

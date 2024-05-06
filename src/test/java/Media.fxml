@@ -148,20 +148,5 @@
             </DropShadow>
          </effect>
       </Button>
-      <Button fx:id="btnDelete" layoutX="18.0" layoutY="161.0" mnemonicParsing="false" onAction="#deleteMedia" prefHeight="40.0" prefWidth="70.0" style="-fx-background-color: #009ee0;" text="Delete" textFill="WHITE">
-         <font>
-            <Font name="Segoe Print Bold" size="14.0" />
-         </font>
-         <effect>
-            <DropShadow>
-               <color>
-                  <Color opacity="0.5687022805213928" />
-               </color>
-               <input>
-                  <Glow />
-               </input>
-            </DropShadow>
-         </effect>
-      </Button>
     </children>
 </AnchorPane>
