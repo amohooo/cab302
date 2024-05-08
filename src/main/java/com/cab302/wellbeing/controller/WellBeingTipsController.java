@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 
 /**
@@ -23,7 +24,7 @@ public class WellBeingTipsController {
      */
     @FXML
     private void handleVideoButton(ActionEvent event) {
-        switchScene(event, WellBeingTipsController.SceneType.MEDIA);
+        switchScene(event, SceneType.MEDIA);
     }
 
     /**
@@ -33,7 +34,7 @@ public class WellBeingTipsController {
      */
     @FXML
     private void handleOtherTipButton(ActionEvent event) {
-        switchScene(event, WellBeingTipsController.SceneType.OTHERTIP);
+        switchScene(event, SceneType.OTHERTIP);
     }
 
     /**
@@ -53,7 +54,7 @@ public class WellBeingTipsController {
      * @param event - the action event that triggered the method
      * @param sceneType - the type of scene to switch to
      */
-    public void switchScene(ActionEvent event, WellBeingTipsController.SceneType sceneType) {
+    public void switchScene(ActionEvent event, SceneType sceneType) {
         String fxmlFile = "";
         String title = "TIPS";
 
@@ -68,7 +69,6 @@ public class WellBeingTipsController {
                 System.err.println("Unsupported scene type: " + sceneType);
                 return;
         }
-
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root1 = fxmlLoader.load();

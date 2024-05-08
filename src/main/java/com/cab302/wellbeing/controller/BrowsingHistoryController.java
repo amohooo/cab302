@@ -1,28 +1,25 @@
 package com.cab302.wellbeing.controller;
 
+import com.cab302.wellbeing.DataBaseConnection;
 import com.cab302.wellbeing.UserSession;
-import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import com.cab302.wellbeing.DataBaseConnection;
-import javafx.scene.input.KeyCode;
-import javafx.util.Duration;
 
 public class BrowsingHistoryController {
     @FXML
-    public DatePicker startDatePicker;
-    @FXML
-    public DatePicker endDatePicker;
+    public DatePicker startDatePicker, endDatePicker;
     @FXML
     public TextArea historyDisplayArea;
     @FXML
-    public Button btnLoadHistory;
+    public Button btnLoadHistory, btnClose;
     @FXML
     public TextField txtUrl;
     @FXML
@@ -118,5 +115,10 @@ public class BrowsingHistoryController {
     public void clearHistoryDisplay() {
         historyDisplayArea.clear();  // Clears the text area
         lblGreeting.setText("Welcome, want to see your browsing history?"); // Reset greeting
+    }
+    @FXML
+    private void closeCurrentWindow() {
+        Stage stage = (Stage) btnClose.getScene().getWindow();
+        stage.close();
     }
 }

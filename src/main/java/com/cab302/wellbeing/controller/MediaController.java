@@ -52,11 +52,15 @@ public class MediaController implements Initializable {
     }
 
     private void setupMediaPlayer(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            filePath = "src/main/java/com/cab302/wellbeing/Media/MindRefresh.mp3";  // Default file path
+        }
         File mediaFile = new File(filePath);
         if (!mediaFile.exists()) {
             System.err.println("File does not exist: " + filePath);
             return;
         }
+
         String uriString = mediaFile.toURI().toString();
         System.out.println("URI for media: " + uriString);
         if (mediaPlayer != null) {
@@ -75,7 +79,7 @@ public class MediaController implements Initializable {
         if (file != null) {
             setupMediaPlayer(file.getAbsolutePath());
         } else {
-            setupMediaPlayer("/MediaFile/MindRefresh.mp3");
+            setupMediaPlayer("src/main/java/com/cab302/wellbeing/Media/MindRefresh.mp3");
         }
     }
     private void bindMediaPlayer() {
@@ -101,14 +105,8 @@ public class MediaController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         dbConnection = new DataBaseConnection();
         setUserId(userId);
-
-        PauseTransition delay = new PauseTransition(Duration.seconds(0.1)); // Introduce a delay before closing the window for the test purpose
-        delay.setOnFinished(event -> loadMediaFilesToChoiceBox());
-        delay.play();
-
-        setupMediaPlayer(null);
-
-        // Delay window-related setup until the MediaView is displayed
+        loadMediaFilesToChoiceBox(); // this method sets up the media files in the ChoiceBox
+        setupMediaPlayer("src/main/java/com/cab302/wellbeing/Media/MindRefresh.mp3");
         Platform.runLater(() -> {
             if (mediaView.getScene() != null && mediaView.getScene().getWindow() != null) {
                 Stage stage = (Stage) mediaView.getScene().getWindow();
@@ -120,7 +118,6 @@ public class MediaController implements Initializable {
                 });
             }
         });
-
         chbMedia.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue != null) {
                 loadMedia(newValue);
@@ -128,9 +125,9 @@ public class MediaController implements Initializable {
         });
     }
     public void loadMedia(String fileName) {
-        if (userId == 0) {  // Assuming userId is 0 when not set
+        if (userId == 0) {
             System.out.println("No user ID provided");
-            return; // Exit the method if userId is not set
+            return;
         }
         String query = "SELECT FilePath FROM MediaFiles WHERE FileName = ? AND UserID = ? AND IsDeleted = FALSE AND IsPublic = TRUE";
         try (Connection conn = dbConnection.getConnection();
@@ -150,7 +147,7 @@ public class MediaController implements Initializable {
         }
     }
     public void playMedia() {
-            mediaPlayer.play();
+        mediaPlayer.play();
     }
     public void pauseMedia() {
         mediaPlayer.pause();
@@ -199,17 +196,14 @@ public class MediaController implements Initializable {
                 if (rs.next()) {
                     filePath = rs.getString("FilePath");
                 }
-
                 if (filePath == null) {
                     System.err.println("File not found in database: " + fileName);
                     return;
                 }
-
                 // Delete from database
                 pstmtDelete.setString(1, fileName);
                 pstmtDelete.setInt(2, userId);
-                int affectedRows = pstmtDelete.executeUpdate();
-
+//                int affectedRows = pstmtDelete.executeUpdate();
 //                if (affectedRows > 0) {
 //                    // Delete the physical file from server location
 //                    Path pathToDelete = Paths.get(filePath);
@@ -220,17 +214,14 @@ public class MediaController implements Initializable {
 //                        System.err.println("Failed to delete file from server: " + filePath);
 //                        e.printStackTrace();
 //                    }
-//                    refreshMediaList();  // Assuming this method refreshes the ComboBox or media list
+                refreshMediaList();
 //                } else {
 //                    System.err.println("Failed to delete file from database: " + fileName);
 //                }
-//
-//            } catch (SQLException e) {
-//                System.err.println("Error deleting media file from database: " + e.getMessage());
-//                e.printStackTrace();
-//            }
+
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                System.err.println("Error deleting media file from database: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -258,15 +249,13 @@ public class MediaController implements Initializable {
         try {
             // Ensure the directory exists
             Files.createDirectories(directory);
-
             // Define the target path for the file
             Path targetPath = directory.resolve(file.getName());
-
             // Copy the file to the target directory, only if it does not exist
             if (!Files.exists(targetPath)) {
                 Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
                 String filePath = targetPath.toString();
-                saveFileMetadata(file, filePath);  // Assuming you have a method to save file metadata to a database
+                saveFileMetadata(file, filePath);
                 return filePath;
             } else {
                 System.err.println("File already exists on server: " + file.getName());
@@ -298,17 +287,10 @@ public class MediaController implements Initializable {
             if (!foundData) {
                 System.out.println("No files found for user with ID " + userId);
             }
-//            PauseTransition delay = new PauseTransition(Duration.seconds(0.5)); // Introduce a delay before closing the window for the test purpose
-//            delay.setOnFinished(event -> chbMedia.setItems(mediaFiles));
-//            delay.play();
             chbMedia.setItems(mediaFiles);
 
             if (!mediaFiles.isEmpty()) {
-//                PauseTransition delay1 = new PauseTransition(Duration.seconds(0.5)); // Introduce a delay before closing the window for the test purpose
-//                delay1.setOnFinished(event -> chbMedia.getSelectionModel().selectFirst());
-//                delay1.play();
                 chbMedia.getSelectionModel().selectFirst();
-
             }
         } catch (SQLException e) {
             System.err.println("Error loading media files: " + e.getMessage());

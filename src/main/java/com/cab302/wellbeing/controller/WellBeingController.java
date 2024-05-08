@@ -48,6 +48,7 @@ public class WellBeingController {
             mainMenuController.displayName(firstName);
             mainMenuController.setFirstName(firstName);
             mainMenuController.setUserId(userId);
+            mainMenuController.setAccType(accType);
 
             //Scene scene = new Scene(root);
             Stage stage;

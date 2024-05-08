@@ -13,8 +13,6 @@ public class SetTimeLimitController {
     @FXML
     public Button btnSaveT;
     public Button btnCancelT;
-
-
     @FXML
     public void btnSaveTOnAction(ActionEvent actionEvent) {
     }

@@ -29,14 +29,14 @@
             <Font size="22.0" />
          </font>
       </Label>
-      <TextField layoutX="192.0" layoutY="142.0" promptText="Type Your Email" />
+      <TextField fx:id="txtEmail" layoutX="192.0" layoutY="142.0" promptText="Type Your Email" />
       <Label layoutX="72.0" layoutY="184.0" prefHeight="32.0" prefWidth="160.0" text="Message :" textFill="WHITE">
          <font>
             <Font size="22.0" />
          </font>
       </Label>
-      <TextArea layoutX="192.0" layoutY="184.0" prefHeight="95.0" prefWidth="293.0" promptText="Message" />
-      <Button layoutX="174.0" layoutY="307.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="93.0" text="Send">
+      <TextArea fx:id="txtMessage" layoutX="192.0" layoutY="184.0" prefHeight="95.0" prefWidth="293.0" promptText="Message" />
+      <Button onAction="#btnSendOnAction" layoutX="174.0" layoutY="307.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="93.0" text="Send">
          <font>
             <Font size="20.0" />
          </font>
