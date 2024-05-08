@@ -5,8 +5,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.util.Optional;
 
@@ -18,6 +22,8 @@ public class MainMenuController{
     public Label lblName;
     private int userId;
     private String firstName;
+
+    private String accType;
     @FXML
     private void handleInternetButton(ActionEvent event) {
         switchScene(event, SceneType.INTERNET);
@@ -53,6 +59,8 @@ public class MainMenuController{
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
+    public void setAccType(String accType) { this.accType = accType;}
     public enum SceneType {
         INTERNET, REPORT, WEBE, USER_PROFILE, SETTING, CONTACT
     }
@@ -78,6 +86,9 @@ public class MainMenuController{
                 break;
             case CONTACT:
                 fxmlFile = "/com/cab302/wellbeing/Contact.fxml";
+                if("Developer".equals(accType)){
+                    fxmlFile = "/com/cab302/wellbeing/DeveloperPage.fxml";
+                }
                 break;
             default:
                 System.err.println("Unsupported scene type: " + sceneType);
@@ -94,6 +105,30 @@ public class MainMenuController{
                 controller.setUserId(userId);  // Pass the user ID to the InternetExplorer controller
                 controller.setFirstName(firstName);  // Pass the user ID to the InternetExplorer controller
             }
+
+            if (sceneType == SceneType.USER_PROFILE) {
+                UserProfileController controller = fxmlLoader.getController();
+                controller.setUserId(userId);  // Pass the user ID to the UserProfile controller
+                controller.displayUserProfile();
+            }
+
+            if (sceneType == SceneType.REPORT) {
+                ReportController controller = fxmlLoader.getController();
+                controller.setUserId(userId);  // Pass the user ID to the Report controller
+                controller.displayLineChart();
+                controller.displayBarChart();
+            }
+
+            if (sceneType == SceneType.CONTACT) {
+                if("Developer".equals(accType)){
+                    DeveloperController controller = fxmlLoader.getController();
+                    controller.displayTable();
+                }else{
+                    ContactController controller = fxmlLoader.getController();
+                    controller.setUserId(userId);  // Pass the user ID
+                }
+            }
+
             if (sceneType == SceneType.WEBE) {
                 WellBeingTipsController controller = fxmlLoader.getController();
                 controller.setUserId(userId);  // Pass the user ID

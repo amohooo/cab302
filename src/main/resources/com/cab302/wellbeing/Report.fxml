@@ -39,7 +39,7 @@
           <NumberAxis side="LEFT" />
         </yAxis>
       </LineChart>
-      <BarChart layoutX="40.0" layoutY="75.0" prefHeight="174.0" prefWidth="253.0" title="Usage of Websites">
+      <BarChart fx:id="bcWebsiteUsage" layoutX="40.0" layoutY="75.0" prefHeight="174.0" prefWidth="253.0" title="Usage of Websites">
         <xAxis>
           <CategoryAxis prefHeight="0.0" prefWidth="395.0" side="BOTTOM" />
         </xAxis>

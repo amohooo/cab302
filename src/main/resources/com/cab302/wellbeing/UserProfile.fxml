@@ -82,7 +82,7 @@
       </Label>
       <RadioButton layoutX="407.0" layoutY="175.0" mnemonicParsing="false" text="Admin" textFill="WHITE" />
       <RadioButton layoutX="476.0" layoutY="175.0" mnemonicParsing="false" text="General" textFill="WHITE" />
-      <Button layoutX="132.0" layoutY="354.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="Save">
+      <Button  onAction="#saveOnAction" layoutX="132.0" layoutY="354.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="Save">
          <font>
             <Font size="15.0" />
          </font>

@@ -117,6 +117,16 @@ public class DataBaseConnection {
                 + ")";
         statement.executeUpdate(createNotificationsTableQuery);
 
+        String createColorSettingsTableQuery = "CREATE TABLE IF NOT EXISTS ColorSettings ("
+                + "UserID INT PRIMARY KEY, "
+                + "BackgroundColor VARCHAR(7), "
+                + "TextColor VARCHAR(7), "
+                + "ButtonColor VARCHAR(7), "
+                + "ButtonTextColor VARCHAR(7), "
+                + "FOREIGN KEY (UserID) REFERENCES useraccount(userId)"
+                + ")";
+        statement.executeUpdate(createColorSettingsTableQuery);
+
         createMediaFilesTable(statement);
 
     }
@@ -288,6 +298,27 @@ public class DataBaseConnection {
             e.printStackTrace();
         }
     }
+    private void insertDefaultColorSettings() {
+        String insertDefaultColorSettingsQuery = "INSERT INTO ColorSettings (UserID, BackgroundColor, TextColor, ButtonColor, ButtonTextColor) "
+                + "VALUES (?, ?, ?, ?, ?)"
+                + "ON DUPLICATE KEY UPDATE "
+                + "BackgroundColor = VALUES(BackgroundColor), "
+                + "TextColor = VALUES(TextColor), "
+                + "ButtonColor = VALUES(ButtonColor), "
+                + "ButtonTextColor = VALUES(ButtonTextColor)";
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(insertDefaultColorSettingsQuery)) {
+            preparedStatement.setInt(1, 1); // Assuming user ID 1 is the default user for this example
+            preparedStatement.setString(2, "#009ee0"); // Default background color
+            preparedStatement.setString(3, "#ffffff"); // Default text color
+            preparedStatement.setString(4, "#009ee0"); // Default button color
+            preparedStatement.setString(5, "#ffffff"); // Default button text color
+            preparedStatement.executeUpdate();
+            System.out.println("Default color settings inserted or updated.");
+        } catch (SQLException e) {
+            System.err.println("Error inserting default color settings: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     // Utility method to hash a password
     public String hashPassword(String password) {
@@ -299,5 +330,6 @@ public class DataBaseConnection {
         insertQuestions();
         insertQuestions2();
         insertUser();
+        insertDefaultColorSettings();
     }
 }
