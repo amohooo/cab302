@@ -1,5 +1,6 @@
 package com.cab302.wellbeing.controller;
 
+import com.cab302.wellbeing.DataBaseConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,21 +10,31 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 
 public class MainMenuController{
     @FXML
-    public Button btnLogOut;
+    public Button btnLogOut, btnExplorer, btnReport, btnWebe, btnUser, btnSetting, btnContact;
     @FXML
     public Label lblName;
+    @FXML
+    public Pane paneMenu;
     private int userId;
     private String firstName;
-
+    private DataBaseConnection dbConnection = new DataBaseConnection();
     private String accType;
+    private static final Color DEFAULT_COLOR = Color.web("#009ee0");
+    private static final Color DEFAULT_TEXT_COLOR = Color.web("#ffffff");
     @FXML
     private void handleInternetButton(ActionEvent event) {
         switchScene(event, SceneType.INTERNET);
@@ -55,6 +66,7 @@ public class MainMenuController{
 
     public void setUserId(int userId) {
         this.userId = userId;
+        loadSavedColors();
     }
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -110,6 +122,11 @@ public class MainMenuController{
                 UserProfileController controller = fxmlLoader.getController();
                 controller.setUserId(userId);  // Pass the user ID to the UserProfile controller
                 controller.displayUserProfile();
+            }
+
+            if (sceneType == SceneType.SETTING) {
+                SettingController controller = fxmlLoader.getController();
+                controller.setUserId(userId);  // Pass the user ID to the UserProfile controller
             }
 
             if (sceneType == SceneType.REPORT) {
@@ -171,6 +188,73 @@ public class MainMenuController{
                 System.err.println("Error loading Login.fxml: " + ex.getMessage());
                 ex.printStackTrace();
             }
+        }
+    }
+    public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
+        String backgroundHex = getHexColor(backgroundColor);
+        String textHex = getHexColor(textColor);
+        String buttonHex = getHexColor(buttonColor);
+
+        if (paneMenu != null) {
+            paneMenu.setStyle("-fx-background-color: " + backgroundHex + ";");
+        }
+        if (lblName != null) {
+            lblName.setStyle("-fx-text-fill: " + textHex + ";");
+        }
+        if (btnLogOut != null) {
+            btnLogOut.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnExplorer != null) {
+            btnExplorer.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnReport != null) {
+            btnReport.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnWebe != null) {
+            btnWebe.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnUser != null) {
+            btnUser.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnSetting != null) {
+            btnSetting.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnContact != null) {
+            btnContact.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+    }
+
+    private String getHexColor(Color color) {
+        return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+    }
+
+    private void loadSavedColors() {
+        if (dbConnection == null) {
+            System.err.println("Database connection is null.");
+            return;
+        }
+        String query = "SELECT BackgroundColor, TextColor, ButtonColor, ButtonTextColor FROM ColorSettings WHERE ID = 2 AND UserID = ?";
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement statement = conn.prepareStatement(query)) {
+            statement.setInt(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                String backgroundColorHex = resultSet.getString("BackgroundColor");
+                String textColorHex = resultSet.getString("TextColor");
+                String buttonColorHex = resultSet.getString("ButtonColor");
+                String buttonTextColorHex = resultSet.getString("ButtonTextColor");
+
+                Color backgroundColor = Color.web(backgroundColorHex);
+                Color textColor = Color.web(textColorHex);
+                Color buttonColor = Color.web(buttonColorHex);
+
+                applyColors(backgroundColor, textColor, buttonColor);
+            } else {
+                applyColors(DEFAULT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_COLOR);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

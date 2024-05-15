@@ -118,7 +118,8 @@ public class DataBaseConnection {
         statement.executeUpdate(createNotificationsTableQuery);
 
         String createColorSettingsTableQuery = "CREATE TABLE IF NOT EXISTS ColorSettings ("
-                + "UserID INT PRIMARY KEY, "
+                + "ID INT PRIMARY KEY AUTO_INCREMENT,"
+                + "UserID INT, "
                 + "BackgroundColor VARCHAR(7), "
                 + "TextColor VARCHAR(7), "
                 + "ButtonColor VARCHAR(7), "
@@ -299,19 +300,20 @@ public class DataBaseConnection {
         }
     }
     private void insertDefaultColorSettings() {
-        String insertDefaultColorSettingsQuery = "INSERT INTO ColorSettings (UserID, BackgroundColor, TextColor, ButtonColor, ButtonTextColor) "
-                + "VALUES (?, ?, ?, ?, ?)"
+        String insertDefaultColorSettingsQuery = "INSERT INTO ColorSettings (ID, UserID, BackgroundColor, TextColor, ButtonColor, ButtonTextColor) "
+                + "VALUES (?, ?, ?, ?, ?, ?) "
                 + "ON DUPLICATE KEY UPDATE "
                 + "BackgroundColor = VALUES(BackgroundColor), "
                 + "TextColor = VALUES(TextColor), "
                 + "ButtonColor = VALUES(ButtonColor), "
                 + "ButtonTextColor = VALUES(ButtonTextColor)";
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(insertDefaultColorSettingsQuery)) {
-            preparedStatement.setInt(1, 1); // Assuming user ID 1 is the default user for this example
-            preparedStatement.setString(2, "#009ee0"); // Default background color
-            preparedStatement.setString(3, "#ffffff"); // Default text color
-            preparedStatement.setString(4, "#009ee0"); // Default button color
-            preparedStatement.setString(5, "#ffffff"); // Default button text color
+            preparedStatement.setInt(1, 1); // ID for default color settings row
+            preparedStatement.setInt(2, 1); // Assuming user ID 1 exists in useraccount table
+            preparedStatement.setString(3, "#009ee0"); // Default background color
+            preparedStatement.setString(4, "#ffffff"); // Default text color
+            preparedStatement.setString(5, "#009ee0"); // Default button color
+            preparedStatement.setString(6, "#ffffff"); // Default button text color
             preparedStatement.executeUpdate();
             System.out.println("Default color settings inserted or updated.");
         } catch (SQLException e) {

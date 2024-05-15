@@ -16,19 +16,5 @@ public class OtherTipsController {
         Stage stage = (Stage) btnGoBackToWell.getScene().getWindow();
         // Close the current stage
         stage.close();
-//        try {
-//            // Load the WellBeingTips FXML file
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/WellBeingTips.fxml"));
-//            Parent root = loader.load();
-//
-//            // Get the current window from the action event, set the new scene
-//            Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-//            Scene scene = new Scene(root);
-//            stage.setScene(scene);
-//            stage.show();
-//        } catch (IOException ioException) {
-//            ioException.printStackTrace();
-//            System.err.println("Error loading WellBeingTips.fxml: " + ioException.getMessage());
-//        }
     }
 }
