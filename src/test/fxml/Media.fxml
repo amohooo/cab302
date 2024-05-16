@@ -14,7 +14,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="749.0" prefWidth="1182.0" style="-fx-background-color: #009ee0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.MediaController">
+<AnchorPane fx:id="paneMedia" prefHeight="749.0" prefWidth="1182.0" style="-fx-background-color: #009ee0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.MediaController">
     <children>
         <MediaView fx:id="mediaView" fitHeight="580.0" fitWidth="970.0" layoutX="200.0" layoutY="10.0" AnchorPane.bottomAnchor="160.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="12.0" />
       <VBox layoutX="14.0" layoutY="613.0" prefHeight="105.0" prefWidth="1159.0">
@@ -113,7 +113,7 @@
             </DropShadow>
          </effect>
       </ChoiceBox>
-      <Label layoutX="22.0" layoutY="57.0" prefHeight="17.0" prefWidth="150.0" text="Load Media" textFill="WHITE">
+      <Label fx:id="lblMedia" layoutX="22.0" layoutY="57.0" prefHeight="17.0" prefWidth="150.0" text="Load Media" textFill="WHITE">
          <font>
             <Font name="Segoe Print Bold" size="24.0" />
          </font>
@@ -134,6 +134,21 @@
          </effect>
       </Button>
       <Button fx:id="btnUpload" layoutX="44.0" layoutY="568.0" mnemonicParsing="false" onAction="#uploadMedia" prefHeight="40.0" prefWidth="70.0" style="-fx-background-color: #009ee0;" text="Upload" textFill="WHITE">
+         <font>
+            <Font name="Segoe Print Bold" size="14.0" />
+         </font>
+         <effect>
+            <DropShadow>
+               <color>
+                  <Color opacity="0.5687022805213928" />
+               </color>
+               <input>
+                  <Glow />
+               </input>
+            </DropShadow>
+         </effect>
+      </Button>
+      <Button fx:id="btnDelete" layoutX="18.0" layoutY="161.0" mnemonicParsing="false" onAction="#deleteMedia" prefHeight="40.0" prefWidth="70.0" style="-fx-background-color: #009ee0;" text="Delete" textFill="WHITE">
          <font>
             <Font name="Segoe Print Bold" size="14.0" />
          </font>

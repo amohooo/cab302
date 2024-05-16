@@ -1,6 +1,7 @@
 package com.cab302.wellbeing.controller;
 
 import com.cab302.wellbeing.DataBaseConnection;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,10 +14,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,11 +33,9 @@ public class InternetExplorerController implements Initializable {
     @FXML
     public TextField txtAddr;
     @FXML
-    Button btnRfrsh;
+    Button btnRfrsh, btnZmIn, btnZmOut, btnHstry, btnBack, btnFwd, btnLoad, btnEnd;
     @FXML
-    Button btnZmIn;
-    @FXML
-    Button btnZmOut;
+    public Pane paneInternet;
     public double webZoom;
     private WebHistory history;
     public static WebEngine engine;
@@ -42,20 +44,29 @@ public class InternetExplorerController implements Initializable {
     String firstName;
     private long startTime, endTime;
     private DataBaseConnection dbConnection = new DataBaseConnection();
+
     public void setEngine(WebEngine engine) {
         this.engine = engine;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Check if webView is not null
         if (webView != null) {
             engine = webView.getEngine();
             setupListeners();
             homePage = "www.google.com"; // Ensure URL is fully qualified
             txtAddr.setText(homePage);
             webZoom = 1;
-            LoadPage(); // Make sure this is called after everything is initialized
+            System.out.println("user id: " + userId);
+            PauseTransition delay = new PauseTransition(Duration.seconds(0.1));
+            delay.setOnFinished(event -> LoadPage());
+            delay.play();
         } else {
             System.err.println("WebView is not initialized!");
         }
@@ -64,8 +75,8 @@ public class InternetExplorerController implements Initializable {
             if (webView.getScene() != null) {
                 Stage stage = (Stage) webView.getScene().getWindow();
                 stage.setOnCloseRequest(event -> {
-                    event.consume();  // Consume the event to prevent default behavior
-                    endSession();  // Handles the cleanup and closes the window
+                    event.consume();
+                    endSession();
                 });
             }
         });
@@ -109,12 +120,15 @@ public class InternetExplorerController implements Initializable {
             }
         });
     }
-    public void setUserId(int userId) {
-        this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
+    public void loadUrl(String url) {
+        if (engine == null) {
+            System.err.println("WebEngine is not initialized.");
+            return;
+        }
+        txtAddr.setText(url);
+        LoadPage();
     }
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+
     void storeBrowsingData(String url, Timestamp start, Timestamp end, Date sessionDate) {
         String insertQuery = "INSERT INTO BrowsingData (UserID, URL, StartTime, EndTime, SessionDate) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = dbConnection.getConnection(); // Get a fresh connection
@@ -160,13 +174,19 @@ public class InternetExplorerController implements Initializable {
         }
     }
     public void switchToHistoryScene(ActionEvent event) {
+        Color backgroundColor = (Color) paneInternet.getBackground().getFills().get(0).getFill();
+        Color textColor = (Color) btnLoad.getTextFill();
+        Color buttonColor = (Color) btnLoad.getBackground().getFills().get(0).getFill();
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/BrowsingHistory.fxml"));
             Parent root1 = fxmlLoader.load();
+
             Stage stage = new Stage();
+
 
             BrowsingHistoryController controller = fxmlLoader.getController();
             controller.setFirstName(firstName);  // Pass the user ID to the InternetExplorer controller
+            controller.applyColors(backgroundColor, textColor, buttonColor);
 
             stage.setTitle("Explorer");
             stage.setScene(new Scene(root1));
@@ -210,7 +230,44 @@ public class InternetExplorerController implements Initializable {
             startTime = System.currentTimeMillis();  // Reset start time
         }
     }
+    public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
+        String backgroundHex = getHexColor(backgroundColor);
+        String textHex = getHexColor(textColor);
+        String buttonHex = getHexColor(buttonColor);
 
+        if (btnFwd != null) {
+            btnFwd.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnRfrsh != null) {
+            btnRfrsh.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnZmIn != null) {
+            btnZmIn.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnZmOut != null) {
+            btnZmOut.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnBack != null) {
+            btnBack.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnHstry != null) {
+            btnHstry.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnLoad != null) {
+            btnLoad.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnEnd != null) {
+            btnEnd.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (paneInternet != null) {
+            paneInternet.setStyle("-fx-background-color: " + backgroundHex + ";");
+        }
+    }
+
+    private String getHexColor(Color color) {
+        return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+    }
     public void setDbConnection(DataBaseConnection mockDataBaseConnection) {
         this.dbConnection = mockDataBaseConnection;
     }

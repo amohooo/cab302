@@ -14,10 +14,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * This class is a controller for the Settings menu in the application.
@@ -32,29 +28,28 @@ public class SettingController {
     private AnchorPane paneSetting;
     private DataBaseConnection dbConnection = new DataBaseConnection();
     private int userId;
+    private String firstName;
     private static final Color DEFAULT_COLOR = Color.web("#009ee0");
     private static final Color DEFAULT_TEXT_COLOR = Color.web("#ffffff");
     private MainMenuController mainMenuController;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+        System.out.println("firstName: " + firstName);
+    }
 
     public void setUserId(int userId) {
         this.userId = userId;
-        loadSavedColors();
+        System.out.println("userId: " + userId);
     }
-
-    public void setMainMenuController(MainMenuController mainMenuController) {
-        this.mainMenuController = mainMenuController;
-    }
-
     public void btnBackOnAction(ActionEvent e) {
         Stage stage = (Stage) btnBack.getScene().getWindow();
         stage.close();
+        switchToMainMenu();
     }
-
     @FXML
     private void handleModeButton(ActionEvent event) {
         switchScene(event, SceneType.MODE);
     }
-
     @FXML
     private void handleSetTimeButton(ActionEvent event) {
         switchScene(event, SceneType.SETTIME);
@@ -87,6 +82,9 @@ public class SettingController {
                 return;
         }
         try {
+            Color backgroundColor = (Color) paneSetting.getBackground().getFills().get(0).getFill();
+            Color textColor = (Color) btnBack.getTextFill();
+            Color buttonColor = (Color) btnBack.getBackground().getFills().get(0).getFill();
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = fxmlLoader.load();
 
@@ -99,21 +97,52 @@ public class SettingController {
             stage.setTitle(title);
 
             // Pass the user ID and main menu controller if the controller is of the appropriate type
-            if (sceneType == SettingController.SceneType.THEME) {
+            if (sceneType == SceneType.THEME) {
                 themeController controller = fxmlLoader.getController();
                 controller.setUserId(userId);
                 controller.setParentController(this);
+                controller.setFirstName(firstName);
                 controller.setMainMenuController(mainMenuController);
+                controller.applyColors(backgroundColor, textColor, buttonColor);
+                System.out.println("userId: " + userId);
+            }
+            if (sceneType == SceneType.MODE) {
+                ModeController controller = fxmlLoader.getController();
+                controller.setUserId(userId);
+                controller.setFirstName(firstName);
+                controller.applyColors(backgroundColor, textColor, buttonColor);
+                System.out.println("userId: " + userId);
+            }
+            if (sceneType == SceneType.SETTIME) {
+                SetTimeLimitController controller = fxmlLoader.getController();
+                controller.setUserId(userId);
+                controller.setFirstName(firstName);
+                controller.applyColors(backgroundColor, textColor, buttonColor);
                 System.out.println("userId: " + userId);
             }
 
             stage.show();
+
         } catch (IOException e) {
             System.err.println("Error loading " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
-
+    private void switchToMainMenu() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/MainMenu.fxml"));
+            Parent root = fxmlLoader.load();
+            MainMenuController mainMenuController = fxmlLoader.getController();
+            mainMenuController.setFirstName(firstName);
+            mainMenuController.setUserId(userId);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Main Menu");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
         String backgroundHex = getHexColor(backgroundColor);
         String textHex = getHexColor(textColor);
@@ -137,44 +166,10 @@ public class SettingController {
         if (btnMode != null) {
             btnMode.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
         }
-
-        // Update MainMenuController colors
-        if (mainMenuController != null) {
-            mainMenuController.applyColors(backgroundColor, textColor, buttonColor);
-        }
     }
 
     private String getHexColor(Color color) {
         return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
-    }
-
-    private void loadSavedColors() {
-        if (dbConnection == null) {
-            System.err.println("Database connection is null.");
-            return;
-        }
-        String query = "SELECT BackgroundColor, TextColor, ButtonColor, ButtonTextColor FROM ColorSettings WHERE ID = 2 AND UserID = ?";
-        try (Connection conn = dbConnection.getConnection();
-             PreparedStatement statement = conn.prepareStatement(query)) {
-            statement.setInt(1, userId);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                String backgroundColorHex = resultSet.getString("BackgroundColor");
-                String textColorHex = resultSet.getString("TextColor");
-                String buttonColorHex = resultSet.getString("ButtonColor");
-                String buttonTextColorHex = resultSet.getString("ButtonTextColor");
-
-                Color backgroundColor = Color.web(backgroundColorHex);
-                Color textColor = Color.web(textColorHex);
-                Color buttonColor = Color.web(buttonColorHex);
-
-                applyColors(backgroundColor, textColor, buttonColor);
-            } else {
-                applyColors(DEFAULT_COLOR, DEFAULT_TEXT_COLOR, DEFAULT_COLOR);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }

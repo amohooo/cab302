@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -27,7 +26,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
@@ -227,8 +225,8 @@ public class PasswordResetControllerTest {
                     assertTrue(passwordResetController.lblQ1.getText().isEmpty());
                     assertTrue(passwordResetController.lblQ2.getText().isEmpty());
                     when(mockResultSet.next()).thenReturn(true); // Simulate email exists
-                    when(mockResultSet.getString("Answer_1")).thenReturn("$2a$10$hash");
-                    when(mockResultSet.getString("Answer_2")).thenReturn("$2a$10$hash");
+                    when(mockResultSet.getString("Answer_1")).thenReturn("wrongAnswer1");
+                    when(mockResultSet.getString("Answer_2")).thenReturn("wrongAnswer2");
 
                     passwordResetController.verifyAnswers();
                     assertEquals("Incorrect answers. Please try again.", passwordResetController.lblVerify.getText());

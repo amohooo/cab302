@@ -1,20 +1,20 @@
 package com.cab302.wellbeing;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javafx.animation.PauseTransition;
-import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
 
-public class DataBaseConnection {
+import java.sql.*;
 
+public class DataBaseConnection {
+    // Default local development settings
     private static final String DATABASE_URL = "jdbc:mysql://127.0.0.1:3306/";
     private static final String DATABASE_NAME = "WellBeing";
     private static final String DATABASE_USER = "cab302";
     private static final String DATABASE_PASSWORD = "cab302";
+
+    // Environment variable fallback settings
+    private static final String ENV_DATABASE_URL = System.getenv("DB_URL");
+    private static final String ENV_DATABASE_USER = System.getenv("DB_USER");
+    private static final String ENV_DATABASE_PASSWORD = System.getenv("DB_PASS");
     public Connection databaseLink;
 
     public void createDatabase() {
@@ -29,6 +29,10 @@ public class DataBaseConnection {
     }
 
     public Connection getConnection() {
+        String databaseUrl = (ENV_DATABASE_URL != null) ? ENV_DATABASE_URL : DATABASE_URL + DATABASE_NAME;
+        String databaseUser = (ENV_DATABASE_USER != null) ? ENV_DATABASE_USER : DATABASE_USER;
+        String databasePass = (ENV_DATABASE_PASSWORD != null) ? ENV_DATABASE_PASSWORD : DATABASE_PASSWORD;
+
         try {
             if (databaseLink == null || databaseLink.isClosed() || !databaseLink.isValid(5)) {
                 createDatabase(); // Ensure the database is created first
@@ -73,16 +77,24 @@ public class DataBaseConnection {
                 + "firstName VARCHAR(255) NOT NULL, "
                 + "lastName VARCHAR(255) NOT NULL, "
                 + "passwordHash VARCHAR(255) NOT NULL, "
-                + "accType ENUM('Admin', 'General') NOT NULL, "
+                + "accType ENUM('Admin', 'General', 'Developer') NOT NULL, "
                 + "DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP, "
                 + "QuestionID_1 INT NOT NULL, "
                 + "QuestionID_2 INT NOT NULL, "
                 + "Answer_1 VARCHAR(255) NOT NULL, "
                 + "Answer_2 VARCHAR(255) NOT NULL, "
+                + "RegistrationCode VARCHAR(255),"
                 + "FOREIGN KEY (QuestionID_1) REFERENCES PwdQuestions1(QuestionID_1), "
                 + "FOREIGN KEY (QuestionID_2) REFERENCES PwdQuestions2(QuestionID_2) "
                 + ")";
         statement.executeUpdate(createUserAccountTableQuery);
+
+        // Create the Developer table
+        String createDeveloperTableQuery = "CREATE TABLE IF NOT EXISTS developer ( "
+                + "developerId INTEGER PRIMARY KEY AUTO_INCREMENT, "
+                + "RegistrationCode VARCHAR(255)"
+                + ")";
+        statement.executeUpdate(createDeveloperTableQuery);
 
         String createBrowsingDataQuery = "CREATE TABLE IF NOT EXISTS BrowsingData ("
                 + "BrowsingID INT AUTO_INCREMENT PRIMARY KEY, "
@@ -105,21 +117,31 @@ public class DataBaseConnection {
                 + "FOREIGN KEY (UserID) REFERENCES useraccount(userId)"
                 + ")";
         statement.executeUpdate(createLimitsTableQuery);
+//
+//        String createNotificationsTableQuery = "CREATE TABLE IF NOT EXISTS Notifications ("
+//                + "NotificationID INT AUTO_INCREMENT PRIMARY KEY, "
+//                + "UserID INT NOT NULL, "
+//                + "NotificationType VARCHAR(50) NOT NULL, "
+//                + "Message TEXT NOT NULL, "
+//                + "DateSent DATETIME DEFAULT CURRENT_TIMESTAMP, "
+//                + "IsRead BOOLEAN NOT NULL DEFAULT FALSE, "
+//                + "FOREIGN KEY (UserID) REFERENCES useraccount(userId)"
+//                + ")";
+//        statement.executeUpdate(createNotificationsTableQuery);
 
-        String createNotificationsTableQuery = "CREATE TABLE IF NOT EXISTS Notifications ("
-                + "NotificationID INT AUTO_INCREMENT PRIMARY KEY, "
+        String createContactUsTableQuery = "CREATE TABLE IF NOT EXISTS ContactUs ("
+                + "ContactUsID INT AUTO_INCREMENT PRIMARY KEY, "
                 + "UserID INT NOT NULL, "
-                + "NotificationType VARCHAR(50) NOT NULL, "
+                + "Email VARCHAR(255) NOT NULL, "
                 + "Message TEXT NOT NULL, "
-                + "DateSent DATETIME DEFAULT CURRENT_TIMESTAMP, "
-                + "IsRead BOOLEAN NOT NULL DEFAULT FALSE, "
+                + "Created DATETIME DEFAULT CURRENT_TIMESTAMP, "
                 + "FOREIGN KEY (UserID) REFERENCES useraccount(userId)"
                 + ")";
-        statement.executeUpdate(createNotificationsTableQuery);
+        statement.executeUpdate(createContactUsTableQuery);
 
         String createColorSettingsTableQuery = "CREATE TABLE IF NOT EXISTS ColorSettings ("
                 + "ID INT PRIMARY KEY AUTO_INCREMENT,"
-                + "UserID INT, "
+                + "UserID INT UNIQUE, "
                 + "BackgroundColor VARCHAR(7), "
                 + "TextColor VARCHAR(7), "
                 + "ButtonColor VARCHAR(7), "
@@ -153,7 +175,8 @@ public class DataBaseConnection {
         String lastName = "cab302";
         String password = "cab302";
         String emailAddress = "cab302@qut.edu.au";
-        String accType = "Admin";
+        String accType = "Developer"; // Use 'Admin' or 'General' here
+        String RegistrationCode = "cab302";
         String questionAnswer1 = "cab302";
         String questionAnswer2 = "cab302";
 
@@ -172,8 +195,7 @@ public class DataBaseConnection {
             ResultSet rs = checkStmt.executeQuery();
             if (rs.next() && rs.getInt(1) > 0) {
                 System.out.println("Username already exists.");
-                return;
-                 // Exit the method if user exists
+                return; // Exit the method if user exists
             }
         } catch (SQLException e) {
             System.err.println("Error checking user existence: " + e.getMessage());
@@ -181,7 +203,7 @@ public class DataBaseConnection {
             return; // Exit the method in case of error
         }
 
-        String query = "INSERT INTO useraccount (userName, firstName, lastName, passwordHash, emailAddress, QuestionID_1, QuestionID_2, Answer_1, Answer_2, accType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO useraccount (userName, firstName, lastName, passwordHash, emailAddress, QuestionID_1, QuestionID_2, Answer_1, Answer_2, RegistrationCode, accType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = databaseLink.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, userName);
             pstmt.setString(2, firstName);
@@ -192,11 +214,56 @@ public class DataBaseConnection {
             pstmt.setInt(7, questionID2);
             pstmt.setString(8, hashAnswer1);
             pstmt.setString(9, hashAnswer2);
-            pstmt.setString(10, accType);
+            pstmt.setString(10, RegistrationCode);
+            pstmt.setString(11, accType);
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
                 System.out.println("User inserted successfully.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error inserting user: " + e.getMessage());
+            e.printStackTrace();
+            try {
+                databaseLink.rollback(); // Rollback transaction in case of error
+            } catch (SQLException sqle) {
+                System.err.println("Error rolling back: " + sqle.getMessage());
+            }
+        } finally {
+            try {
+                databaseLink.setAutoCommit(true); // Re-enable auto-commit
+            } catch (SQLException sqle) {
+                System.err.println("Error resetting auto-commit: " + sqle.getMessage());
+            }
+        }
+    }
+
+    public void insertRegistrationCode() {
+        String Code = "cab302";
+
+        // Check if username exists
+        String checkUserQuery = "SELECT COUNT(*) FROM developer WHERE RegistrationCode = ?";
+        try (PreparedStatement checkStmt = databaseLink.prepareStatement(checkUserQuery)) {
+            checkStmt.setString(1, Code);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                System.out.println("Username already exists.");
+                return;
+                // Exit the method if user exists
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking user existence: " + e.getMessage());
+            e.printStackTrace();
+            return; // Exit the method in case of error
+        }
+
+        String query = "INSERT INTO developer (RegistrationCode) VALUES (?)";
+        try (PreparedStatement pstmt = databaseLink.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, Code);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("Registration Code inserted successfully.");
             }
         } catch (SQLException e) {
             System.err.println("Error inserting user: " + e.getMessage());
@@ -332,6 +399,7 @@ public class DataBaseConnection {
         insertQuestions();
         insertQuestions2();
         insertUser();
+        insertRegistrationCode();
         insertDefaultColorSettings();
     }
 }

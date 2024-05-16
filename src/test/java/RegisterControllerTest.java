@@ -1,6 +1,7 @@
 import com.cab302.wellbeing.DataBaseConnection;
 import com.cab302.wellbeing.controller.RegisterController;
 import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,7 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class RegisterControllerTest {
@@ -44,22 +45,17 @@ public class RegisterControllerTest {
 
     @BeforeAll
     public static void setUpAll() throws SQLException {
-        try {
-            Platform.startup(() -> {
-                // Initialization logic for JavaFX components
-                registerController = new RegisterController();
-            });
-        } catch (IllegalStateException e) {
-            // Ignore the exception if the toolkit is already initialized
-            System.err.println("JavaFX Toolkit already initialized.");
-            if (registerController == null) {
-                registerController = new RegisterController();
-            }
-        }
+        // Ensure JavaFX Toolkit is initialized without error
+        new JFXPanel();  // This will initialize JavaFX environment
+        Platform.runLater(() -> {
+            // Ensure the RegisterController is created
+            registerController = new RegisterController();
+        });
+
         realTestDbConnection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/wellbeing", "cab302", "cab302");
     }
 
-    private void setinitialData() throws SQLException {
+    private void setInitialData() throws SQLException {
         registerController.txtFName = new TextField();
         registerController.txtLName = new TextField();
         registerController.txtUsername = new TextField();
@@ -75,6 +71,7 @@ public class RegisterControllerTest {
         registerController.ckUser = new CheckBox();
         setupValidInputs();
     }
+
     @BeforeEach
     public void setUp() throws Exception {
         // Initialize Mockito annotations
@@ -102,8 +99,8 @@ public class RegisterControllerTest {
                 when(mockDataBaseConnection.getConnection()).thenReturn(mockConnection);
                 when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
 
-                // Prepare controller with necessary initial data or state
-                setinitialData();  // If exists, to set up necessary initial state or data
+                // Prepare the controller with necessary initial data or state
+                setInitialData();  // If exists, to set up necessary initial state or data
             } catch (IOException | SQLException e) {
                 e.printStackTrace();
                 fail("Failed to load FXML or initialize the controller: " + e.getMessage());
@@ -129,6 +126,7 @@ public class RegisterControllerTest {
         registerController.chbQ2.getSelectionModel().select(0);
         registerController.txtA1.setText("Smith");
         registerController.txtA2.setText("Blue");
+        registerController.radbAdm.setSelected(true);
         registerController.ckUser.setSelected(true);
     }
 

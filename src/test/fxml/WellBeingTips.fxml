@@ -8,7 +8,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="492.0" prefWidth="679.0" style="-fx-background-color: E1E5F0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.WellBeingTipsController">
+<AnchorPane fx:id="paneWebeTip" prefHeight="492.0" prefWidth="679.0" style="-fx-background-color: E1E5F0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.WellBeingTipsController">
    <children>
       <Button fx:id="btnVideo" layoutX="110.0" layoutY="152.0" mnemonicParsing="false" onAction="#handleVideoButton" prefHeight="188.0" prefWidth="212.0" style="-fx-background-color: #009ee0;" text="Video tips" textFill="WHITE">
          <font>

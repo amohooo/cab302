@@ -11,9 +11,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -33,13 +35,17 @@ import java.util.ResourceBundle;
 
 public class MediaController implements Initializable {
     private int userId;
+    private static final Color DEFAULT_COLOR = Color.web("#009ee0");
+    private static final Color DEFAULT_TEXT_COLOR = Color.web("#ffffff");
     public void setUserId(int userId) {
         this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
     }
     @FXML private MediaView mediaView;
-    @FXML private Button btnPlay, btnPause, btnStop, btnLoad, btnUpload;
-    @FXML private Label lblDuration;
+    @FXML private Button btnPlay, btnPause, btnStop, btnUpload, btnDelete, btnRFS, btnSelect;
+    @FXML private Label lblDuration, lblMedia;
     @FXML private Slider slider;
+    @FXML
+    private Pane paneMedia;
     @FXML
     public ChoiceBox<String> chbMedia;
     private Media media;
@@ -203,21 +209,8 @@ public class MediaController implements Initializable {
                 // Delete from database
                 pstmtDelete.setString(1, fileName);
                 pstmtDelete.setInt(2, userId);
-//                int affectedRows = pstmtDelete.executeUpdate();
-//                if (affectedRows > 0) {
-//                    // Delete the physical file from server location
-//                    Path pathToDelete = Paths.get(filePath);
-//                    try {
-//                        Files.deleteIfExists(pathToDelete);
-//                        System.out.println("File deleted successfully from server and database: " + fileName);
-//                    } catch (IOException e) {
-//                        System.err.println("Failed to delete file from server: " + filePath);
-//                        e.printStackTrace();
-//                    }
+
                 refreshMediaList();
-//                } else {
-//                    System.err.println("Failed to delete file from database: " + fileName);
-//                }
 
             } catch (SQLException e) {
                 System.err.println("Error deleting media file from database: " + e.getMessage());
@@ -339,4 +332,49 @@ public class MediaController implements Initializable {
             e.printStackTrace();
         }
     }
+    public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
+        String backgroundHex = getHexColor(backgroundColor);
+        String textHex = getHexColor(textColor);
+        String buttonHex = getHexColor(buttonColor);
+
+        if (paneMedia != null) {
+            paneMedia.setStyle("-fx-background-color: " + backgroundHex + ";");
+        }
+        if (lblDuration != null) {
+            lblDuration.setStyle("-fx-text-fill: " + textHex + ";");
+        }
+        if (lblMedia != null) {
+            lblMedia.setStyle("-fx-text-fill: " + textHex + ";");
+        }
+        if (btnUpload != null) {
+            btnUpload.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnDelete != null) {
+            btnDelete.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnStop != null) {
+            btnStop.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnSelect != null) {
+            btnSelect.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnPlay != null) {
+            btnPlay.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnRFS != null) {
+            btnRFS.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnPause != null) {
+            btnPause.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (chbMedia != null) {
+            chbMedia.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+    }
+
+    private String getHexColor(Color color) {
+        return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+    }
+
 }

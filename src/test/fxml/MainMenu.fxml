@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane blendMode="MULTIPLY" prefHeight="711.0" prefWidth="841.0" style="-fx-background-color: E1E5F0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.MainMenuController">
+<AnchorPane fx:id="paneMenu" blendMode="MULTIPLY" prefHeight="711.0" prefWidth="841.0" style="-fx-background-color: E1E5F0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.MainMenuController">
    <children>
       <Button fx:id="btnExplorer" layoutX="56.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleInternetButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Internet Explorer" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
