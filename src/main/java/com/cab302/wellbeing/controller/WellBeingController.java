@@ -159,6 +159,7 @@ public class WellBeingController {
         }
     }
 
+
     public void btnForgotPwdOnAction(ActionEvent e) {
         openPasswordResetScene();
     }

@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1209.0" style="-fx-background-color: #009ee0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.InternetExplorerController">
+<AnchorPane fx:id="paneInternet" prefHeight="800.0" prefWidth="1209.0" style="-fx-background-color: #009ee0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.InternetExplorerController">
    <children>
       <WebView fx:id="webView" layoutX="11.0" layoutY="105.0" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="11.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="105.0" />
       <Button fx:id="btnLoad" layoutX="14.0" layoutY="68.0" mnemonicParsing="false" onAction="#LoadPage" style="-fx-background-color: #009ee0;" text="Load" textFill="WHITE">

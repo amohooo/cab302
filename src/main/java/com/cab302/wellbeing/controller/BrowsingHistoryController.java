@@ -5,7 +5,8 @@ import com.cab302.wellbeing.UserSession;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.stage.Stage;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,16 +20,22 @@ public class BrowsingHistoryController {
     @FXML
     public TextArea historyDisplayArea;
     @FXML
-    public Button btnLoadHistory, btnClose;
+    public Button btnSearch, btnClear;
+    @FXML
+    public Pane paneHistory;
     @FXML
     public TextField txtUrl;
     @FXML
-    public Label lblGreeting;
+    public Label lblGreeting, lblStart, lblEnd, lblWeb;
     String firstName;
+    private int currentUserId; // Store the current user ID
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
+    public void setUserId(int userId) {
+        this.currentUserId = userId;
+    }
     public void initialize() {
         // Set up the event handler for the Enter key in the txtUrl TextField
         txtUrl.setOnKeyPressed(event -> {
@@ -116,9 +123,41 @@ public class BrowsingHistoryController {
         historyDisplayArea.clear();  // Clears the text area
         lblGreeting.setText("Welcome, want to see your browsing history?"); // Reset greeting
     }
-    @FXML
-    private void closeCurrentWindow() {
-        Stage stage = (Stage) btnClose.getScene().getWindow();
-        stage.close();
+    public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
+        String backgroundHex = getHexColor(backgroundColor);
+        String textHex = getHexColor(textColor);
+        String buttonHex = getHexColor(buttonColor);
+
+        if (lblGreeting != null) {
+            lblGreeting.setStyle("-fx-text-fill: " + textHex + ";");
+        }
+        if (lblStart != null) {
+            lblStart.setStyle("-fx-text-fill: " + textHex + ";");
+        }
+        if (lblEnd != null) {
+            lblEnd.setStyle("-fx-text-fill: " + textHex + ";");
+        }
+        if (lblWeb != null) {
+            lblWeb.setStyle("-fx-text-fill: " + textHex + ";");
+        }
+        if (btnSearch != null) {
+            btnSearch.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnClear != null) {
+            btnClear.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (paneHistory != null) {
+            paneHistory.setStyle("-fx-background-color: " + backgroundHex + ";");
+        }
     }
+
+    private String getHexColor(Color color) {
+        return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+    }
+//    @FXML
+//    private void closeCurrentWindow() {
+//        Stage stage = (Stage) btnClose.getScene().getWindow();
+//        stage.close();
+//    }
 }

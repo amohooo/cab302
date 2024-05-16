@@ -10,13 +10,18 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,6 +39,10 @@ public class ReportController {
 
     @FXML
     public Label lblReportMsg;
+    @FXML
+    public Button btnHist, btnDnld, btnCancel;
+    @FXML
+    public Pane paneReport;
 
     @FXML
     public LineChart lcDailyUsage;
@@ -113,11 +122,27 @@ public class ReportController {
         List<BarChartModel> dataset = this.getBCDataset();
         XYChart.Series<String,String> series = new XYChart.Series<>();
         for(BarChartModel bcModel : dataset){
-            series.getData().add(new XYChart.Data(bcModel.url, bcModel.durationSum));
+            series.getData().add(new XYChart.Data(getHostName(bcModel.url), bcModel.durationSum));
         }
         this.bcWebsiteUsage.getData().add(series);
     }
 
+    public String getHostName(String url) {
+        URI uri = null;
+        try {
+            uri = new URI(url);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        String hostname = uri.getHost();
+        // to provide faultproof result, check if not null then return only hostname, without www.
+        if (hostname != null) {
+            return hostname.startsWith("www.") ? hostname.substring(4) : hostname;
+        }else{
+            hostname = url;
+        }
+        return hostname;
+    }
 
     public void initLineChart(){
         this.lcDailyUsage.setTitle("Daily Usage");
@@ -172,6 +197,32 @@ public class ReportController {
             e.printStackTrace();
         }
         return res;
+    }
+    public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
+        String backgroundHex = getHexColor(backgroundColor);
+        String textHex = getHexColor(textColor);
+        String buttonHex = getHexColor(buttonColor);
+
+        if (paneReport != null) {
+            paneReport.setStyle("-fx-background-color: " + backgroundHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnHist != null) {
+            btnHist.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnDnld != null) {
+            btnDnld.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnCancel != null) {
+            btnCancel.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (lblReportMsg != null) {
+            lblReportMsg.setStyle(" -fx-text-fill: " + textHex + ";");
+        }
+    }
+
+    private String getHexColor(Color color) {
+        return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
     }
 }
 

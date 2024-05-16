@@ -6,6 +6,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -16,7 +18,9 @@ import java.io.IOException;
  */
 public class WellBeingTipsController {
     @FXML
-    Button btnGoBack;
+    Button btnGoBack, btnVideo, btnOT;
+    @FXML
+    public Pane paneWebeTip;
     /**
      * This method is used to handle the video button click event.
      * It switches the scene to the video scene.
@@ -44,8 +48,13 @@ public class WellBeingTipsController {
         MEDIA, OTHERTIP
     }
     private int userId;
+    private String firstName;
     public void setUserId(int userId) {
         this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
+        //loadSavedColors();
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     /**
@@ -57,6 +66,9 @@ public class WellBeingTipsController {
     public void switchScene(ActionEvent event, SceneType sceneType) {
         String fxmlFile = "";
         String title = "TIPS";
+        Color backgroundColor = (Color) paneWebeTip.getBackground().getFills().get(0).getFill();
+        Color textColor = (Color) btnOT.getTextFill();
+        Color buttonColor = (Color) btnGoBack.getBackground().getFills().get(0).getFill();
 
         switch (sceneType) {
             case MEDIA:
@@ -76,6 +88,12 @@ public class WellBeingTipsController {
             if (sceneType == SceneType.MEDIA) {
                 MediaController controller = fxmlLoader.getController();
                 controller.setUserId(userId);  // Pass the user ID to the InternetExplorer controller
+                controller.applyColors(backgroundColor, textColor, buttonColor);
+            }
+            if (sceneType == SceneType.OTHERTIP) {
+                OtherTipsController controller = fxmlLoader.getController();
+                controller.setUserId(userId);  // Pass the user ID to the InternetExplorer controller
+                controller.setFirstName(firstName);
             }
             stage.setTitle(title);
             stage.setScene(new Scene(root1));
@@ -85,6 +103,30 @@ public class WellBeingTipsController {
             System.err.println("Error loading " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
+        String backgroundHex = getHexColor(backgroundColor);
+        String textHex = getHexColor(textColor);
+        String buttonHex = getHexColor(buttonColor);
+
+        if (btnGoBack != null) {
+            btnGoBack.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnVideo != null) {
+            btnVideo.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnOT != null) {
+            btnOT.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (paneWebeTip != null) {
+            paneWebeTip.setStyle("-fx-background-color: " + backgroundHex + ";");
+        }
+    }
+
+    private String getHexColor(Color color) {
+        return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
     }
     public void btnGoBackOnAction(ActionEvent e){
         Stage stage = (Stage) btnGoBack.getScene().getWindow();

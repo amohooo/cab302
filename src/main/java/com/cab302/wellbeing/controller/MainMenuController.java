@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 
-public class MainMenuController{
+public class MainMenuController {
     @FXML
     public Button btnLogOut, btnExplorer, btnReport, btnWebe, btnUser, btnSetting, btnContact;
     @FXML
@@ -35,50 +35,79 @@ public class MainMenuController{
     private String accType;
     private static final Color DEFAULT_COLOR = Color.web("#009ee0");
     private static final Color DEFAULT_TEXT_COLOR = Color.web("#ffffff");
+
     @FXML
     private void handleInternetButton(ActionEvent event) {
         switchScene(event, SceneType.INTERNET);
     }
+
     @FXML
     private void handleReportButton(ActionEvent event) {
         switchScene(event, SceneType.REPORT);
     }
+
     @FXML
     private void handleWebeButton(ActionEvent event) {
         switchScene(event, SceneType.WEBE);
     }
+
     @FXML
     private void handleUserProfileButton(ActionEvent event) {
         switchScene(event, SceneType.USER_PROFILE);
     }
+
     @FXML
     private void handleUserSettingButton(ActionEvent event) {
         switchScene(event, SceneType.SETTING);
     }
+
     @FXML
     private void handleContactButton(ActionEvent event) {
         switchScene(event, SceneType.CONTACT);
     }
 
-    public void displayName(String firstName) {
-        lblName.setText(firstName + ", wish you are having a bright day!");
-    }
-
     public void setUserId(int userId) {
         this.userId = userId;
+        if (this.firstName == null) {
+            this.firstName = fetchFirstNameFromDatabase(userId);
+
+            System.out.println("userId: " + userId);
+        }
         loadSavedColors();
     }
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+    public void displayName(String firstName) {
+        lblName.setText(firstName + ", wish you are having a bright day!");
+    }
 
-    public void setAccType(String accType) { this.accType = accType;}
+    private String fetchFirstNameFromDatabase(int userId) {
+        String query = "SELECT firstName FROM useraccount WHERE userId = ?";
+        try (Connection conn = new DataBaseConnection().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("firstName");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "User"; // Default value if the user is not found
+    }
+
+    public void setAccType(String accType) {
+        this.accType = accType;
+    }
+
     public enum SceneType {
         INTERNET, REPORT, WEBE, USER_PROFILE, SETTING, CONTACT
     }
+
     public void switchScene(ActionEvent event, SceneType sceneType) {
         String fxmlFile = "";
-        String title = "Explorer";  // Assuming a common title for simplicity, can be adjusted if needed
+        String title = "Explorer";
 
         switch (sceneType) {
             case INTERNET:
@@ -98,7 +127,7 @@ public class MainMenuController{
                 break;
             case CONTACT:
                 fxmlFile = "/com/cab302/wellbeing/Contact.fxml";
-                if("Developer".equals(accType)){
+                if ("Developer".equals(accType)) {
                     fxmlFile = "/com/cab302/wellbeing/DeveloperPage.fxml";
                 }
                 break;
@@ -111,52 +140,75 @@ public class MainMenuController{
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
-            // Check if the scene is INTERNET and then set the user ID
-            if (sceneType == SceneType.INTERNET) {
-                InternetExplorerController controller = fxmlLoader.getController();
-                controller.setUserId(userId);  // Pass the user ID to the InternetExplorer controller
-                controller.setFirstName(firstName);  // Pass the user ID to the InternetExplorer controller
-            }
 
-            if (sceneType == SceneType.USER_PROFILE) {
-                UserProfileController controller = fxmlLoader.getController();
-                controller.setUserId(userId);  // Pass the user ID to the UserProfile controller
-                controller.displayUserProfile();
-            }
+            // Fetch current color settings
+            Color backgroundColor = (Color) paneMenu.getBackground().getFills().get(0).getFill();
+            Color textColor = (Color) lblName.getTextFill();
+            Color buttonColor = (Color) btnExplorer.getBackground().getFills().get(0).getFill();
 
-            if (sceneType == SceneType.SETTING) {
-                SettingController controller = fxmlLoader.getController();
-                controller.setUserId(userId);  // Pass the user ID to the UserProfile controller
-            }
+            switch (sceneType) {
+                case INTERNET:
+                    InternetExplorerController internetController = fxmlLoader.getController();
+                    internetController.setUserId(userId);
+                    internetController.setFirstName(firstName);
+                    //setInternetExplorerController(internetController);
+                    internetController.applyColors(backgroundColor, textColor, buttonColor);
+                    break;
 
-            if (sceneType == SceneType.REPORT) {
-                ReportController controller = fxmlLoader.getController();
-                controller.setUserId(userId);  // Pass the user ID to the Report controller
-                controller.displayLineChart();
-                controller.displayBarChart();
-            }
+                case REPORT:
+                    ReportController reportController = fxmlLoader.getController();
+                    reportController.setUserId(userId);
+                    reportController.displayLineChart();
+                    reportController.displayBarChart();
+                    reportController.applyColors(backgroundColor, textColor, buttonColor);
+                    break;
 
-            if (sceneType == SceneType.CONTACT) {
-                if("Developer".equals(accType)){
-                    DeveloperController controller = fxmlLoader.getController();
-                    controller.displayTable();
-                }else{
-                    ContactController controller = fxmlLoader.getController();
-                    controller.setUserId(userId);  // Pass the user ID
-                }
-            }
+                case WEBE:
+                    WellBeingTipsController webeController = fxmlLoader.getController();
+                    webeController.setUserId(userId);
+                    webeController.setFirstName(firstName);
+                    //setWellBeingTipsController(webeController);
+                    webeController.applyColors(backgroundColor, textColor, buttonColor);
+                    break;
 
-            if (sceneType == SceneType.WEBE) {
-                WellBeingTipsController controller = fxmlLoader.getController();
-                controller.setUserId(userId);  // Pass the user ID
+                case USER_PROFILE:
+                    UserProfileController userProfileController = fxmlLoader.getController();
+                    userProfileController.setUserId(userId);
+                    userProfileController.loadQuestions();
+                    userProfileController.displayUserProfile();
+                    userProfileController.applyColors(backgroundColor, textColor, buttonColor);
+                    break;
+
+                case SETTING:
+                    SettingController settingController = fxmlLoader.getController();
+                    settingController.setUserId(userId);
+                    settingController.applyColors(backgroundColor, textColor, buttonColor);
+                    break;
+
+                case CONTACT:
+                    if ("Developer".equals(accType)) {
+                        DeveloperController developerController = fxmlLoader.getController();
+                        developerController.displayTable();
+                        developerController.applyColors(backgroundColor, textColor, buttonColor);
+                    } else {
+                        ContactController contactController = fxmlLoader.getController();
+                        contactController.setUserId(userId);
+                        contactController.applyColors(backgroundColor, textColor, buttonColor);
+                    }
+                    break;
             }
             stage.setTitle(title);
             stage.setScene(new Scene(root));
             stage.setResizable(true);
             stage.show();
+
         } catch (IOException e) {
             System.err.println("Error loading " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
+        }
+        if (sceneType == SceneType.SETTING) {
+            Stage stage = (Stage) btnLogOut.getScene().getWindow();
+            stage.close();
         }
     }
 
@@ -190,6 +242,7 @@ public class MainMenuController{
             }
         }
     }
+
     public void applyColors(Color backgroundColor, Color textColor, Color buttonColor) {
         String backgroundHex = getHexColor(backgroundColor);
         String textHex = getHexColor(textColor);
@@ -234,7 +287,7 @@ public class MainMenuController{
             System.err.println("Database connection is null.");
             return;
         }
-        String query = "SELECT BackgroundColor, TextColor, ButtonColor, ButtonTextColor FROM ColorSettings WHERE ID = 2 AND UserID = ?";
+        String query = "SELECT BackgroundColor, TextColor, ButtonColor, ButtonTextColor FROM ColorSettings WHERE UserID = ?";
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement statement = conn.prepareStatement(query)) {
             statement.setInt(1, userId);
@@ -262,5 +315,4 @@ public class MainMenuController{
         Stage stage = (Stage) btnLogOut.getScene().getWindow();
         stage.close();
     }
-
 }
