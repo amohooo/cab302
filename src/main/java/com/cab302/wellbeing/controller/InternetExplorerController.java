@@ -1,7 +1,7 @@
 package com.cab302.wellbeing.controller;
 
+import com.cab302.wellbeing.AppSettings;
 import com.cab302.wellbeing.DataBaseConnection;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -20,7 +21,6 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -36,6 +36,7 @@ public class InternetExplorerController implements Initializable {
     Button btnRfrsh, btnZmIn, btnZmOut, btnHstry, btnBack, btnFwd, btnLoad, btnEnd;
     @FXML
     public Pane paneInternet;
+    public Label lblBkGrd;
     public double webZoom;
     private WebHistory history;
     public static WebEngine engine;
@@ -46,14 +47,10 @@ public class InternetExplorerController implements Initializable {
     private DataBaseConnection dbConnection = new DataBaseConnection();
 
     public void setEngine(WebEngine engine) {
+
         this.engine = engine;
     }
-    public void setUserId(int userId) {
-        this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
-    }
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -63,10 +60,7 @@ public class InternetExplorerController implements Initializable {
             homePage = "www.google.com"; // Ensure URL is fully qualified
             txtAddr.setText(homePage);
             webZoom = 1;
-            System.out.println("user id: " + userId);
-            PauseTransition delay = new PauseTransition(Duration.seconds(0.1));
-            delay.setOnFinished(event -> LoadPage());
-            delay.play();
+            LoadPage();
         } else {
             System.err.println("WebView is not initialized!");
         }
@@ -120,6 +114,7 @@ public class InternetExplorerController implements Initializable {
             }
         });
     }
+
     public void loadUrl(String url) {
         if (engine == null) {
             System.err.println("WebEngine is not initialized.");
@@ -128,7 +123,12 @@ public class InternetExplorerController implements Initializable {
         txtAddr.setText(url);
         LoadPage();
     }
-
+    public void setUserId(int userId) {
+        this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
     void storeBrowsingData(String url, Timestamp start, Timestamp end, Date sessionDate) {
         String insertQuery = "INSERT INTO BrowsingData (UserID, URL, StartTime, EndTime, SessionDate) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = dbConnection.getConnection(); // Get a fresh connection
@@ -180,14 +180,12 @@ public class InternetExplorerController implements Initializable {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/BrowsingHistory.fxml"));
             Parent root1 = fxmlLoader.load();
-
             Stage stage = new Stage();
-
 
             BrowsingHistoryController controller = fxmlLoader.getController();
             controller.setFirstName(firstName);  // Pass the user ID to the InternetExplorer controller
             controller.applyColors(backgroundColor, textColor, buttonColor);
-
+            controller.applyModeColors();
             stage.setTitle("Explorer");
             stage.setScene(new Scene(root1));
             stage.setResizable(true);
@@ -270,5 +268,31 @@ public class InternetExplorerController implements Initializable {
     }
     public void setDbConnection(DataBaseConnection mockDataBaseConnection) {
         this.dbConnection = mockDataBaseConnection;
+    }
+    public void applyModeColors() {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+        String currentMode = AppSettings.getCurrentMode();
+        double opacity = AppSettings.MODE_AUTO.equals(currentMode) ? 0.0 : 0.5; // 0% for auto, 70% for others
+        updateLabelBackgroundColor(opacity);
+    }
+
+    public void updateLabelBackgroundColor(double opacity) {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+        Color backgroundColor = AppSettings.getCurrentModeColorWithOpacity(opacity);
+        lblBkGrd.setStyle("-fx-background-color: " + toRgbaColor(backgroundColor) + ";");
+    }
+
+    private String toRgbaColor(Color color) {
+        return String.format("rgba(%d, %d, %d, %.2f)",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255),
+                color.getOpacity());
     }
 }

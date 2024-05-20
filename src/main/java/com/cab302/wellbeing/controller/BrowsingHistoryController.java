@@ -1,5 +1,6 @@
 package com.cab302.wellbeing.controller;
 
+import com.cab302.wellbeing.AppSettings;
 import com.cab302.wellbeing.DataBaseConnection;
 import com.cab302.wellbeing.UserSession;
 import javafx.fxml.FXML;
@@ -13,7 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-
 public class BrowsingHistoryController {
     @FXML
     public DatePicker startDatePicker, endDatePicker;
@@ -26,7 +26,7 @@ public class BrowsingHistoryController {
     @FXML
     public TextField txtUrl;
     @FXML
-    public Label lblGreeting, lblStart, lblEnd, lblWeb;
+    public Label lblGreeting, lblStart, lblEnd, lblWeb, lblBkGrd;
     String firstName;
     private int currentUserId; // Store the current user ID
     public void setFirstName(String firstName) {
@@ -154,6 +154,34 @@ public class BrowsingHistoryController {
     private String getHexColor(Color color) {
         return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+    }
+    public void applyModeColors() {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+
+        String currentMode = AppSettings.getCurrentMode();
+        double opacity = AppSettings.MODE_AUTO.equals(currentMode) ? 0.0 : 0.5; // 0% for auto, 70% for others
+
+        updateLabelBackgroundColor(opacity);
+    }
+
+    public void updateLabelBackgroundColor(double opacity) {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+        Color backgroundColor = AppSettings.getCurrentModeColorWithOpacity(opacity);
+        lblBkGrd.setStyle("-fx-background-color: " + toRgbaColor(backgroundColor) + ";");
+    }
+
+    private String toRgbaColor(Color color) {
+        return String.format("rgba(%d, %d, %d, %.2f)",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255),
+                color.getOpacity());
     }
 //    @FXML
 //    private void closeCurrentWindow() {

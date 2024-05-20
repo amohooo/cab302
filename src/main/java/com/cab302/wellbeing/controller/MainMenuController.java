@@ -1,18 +1,20 @@
 package com.cab302.wellbeing.controller;
 
+import com.cab302.wellbeing.AppSettings;
 import com.cab302.wellbeing.DataBaseConnection;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -29,13 +31,31 @@ public class MainMenuController {
     public Label lblName;
     @FXML
     public Pane paneMenu;
+
+    @FXML
+    private Label lblBkGrd;
     private int userId;
     private String firstName;
+    private Timeline countdown;
+    private Timeline notificationTimeline;
+    private int totalSeconds;
+    private boolean notifySelected;
+    private boolean askSelected;
+    private boolean exitSelected;
+    private String limitType;
+    private int limitValue;
+    private boolean active;
     private DataBaseConnection dbConnection = new DataBaseConnection();
     private String accType;
     private static final Color DEFAULT_COLOR = Color.web("#009ee0");
     private static final Color DEFAULT_TEXT_COLOR = Color.web("#ffffff");
-
+    private static MainMenuController instance;
+    public static MainMenuController getInstance() {
+        if (instance == null) {
+            instance = new MainMenuController();
+        }
+        return instance;
+    }
     @FXML
     private void handleInternetButton(ActionEvent event) {
         switchScene(event, SceneType.INTERNET);
@@ -66,6 +86,124 @@ public class MainMenuController {
         switchScene(event, SceneType.CONTACT);
     }
 
+    private void loadTimeLimits() {
+        String query = "SELECT LimitType, LimitValue, Active FROM Limits WHERE UserID = ?";
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                limitType = rs.getString("LimitType");
+                limitValue = rs.getInt("LimitValue");
+                active = rs.getBoolean("Active");
+
+                totalSeconds = limitValue;
+                notifySelected = "Notify".equals(limitType);
+                askSelected = "Ask".equals(limitType);
+                exitSelected = "Exit".equals(limitType);
+
+                // Stop any existing timer before starting a new one
+                stopCountdownTimer();
+
+                if (active) {
+                    startCountdownTimer(totalSeconds, active);
+                }
+            } else {
+                limitType = null;
+                limitValue = 0;
+                active = false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private void stopCountdownTimer() {
+        if (countdown != null) {
+            countdown.stop();
+            countdown = null;
+        }
+        if (notificationTimeline != null) {
+            notificationTimeline.stop();
+            notificationTimeline = null;
+        }
+    }
+
+    private void startCountdownTimer(int initialTotalSeconds, boolean active) {
+        if (!active) {
+            return;
+        }
+
+        final int[] totalSeconds = {initialTotalSeconds};
+        countdown = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            if (totalSeconds[0] <= 0) {
+                // Time is up, handle the notification
+                if (notifySelected) {
+                    showNotification();
+                } else if (askSelected) {
+                    showAskDialog();
+                } else if (exitSelected) {
+                    System.exit(0);
+                }
+                countdown.stop(); // Stop the countdown timer
+            } else {
+                totalSeconds[0]--;
+            }
+        }));
+        countdown.setCycleCount(Timeline.INDEFINITE);
+        countdown.play();
+    }
+
+
+    private void showNotification() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Time's Up");
+            alert.setHeaderText(null);
+            alert.setContentText(firstName + ", your time is up!");
+            alert.showAndWait();
+
+            // Start the notification timeline to show the alert after 5 seconds
+            startNotificationTimer();
+        });
+    }
+
+    private void startNotificationTimer() {
+        if (notificationTimeline != null) {
+            notificationTimeline.stop();
+        }
+        notificationTimeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> showNotification()));
+        notificationTimeline.setCycleCount(1); // Only trigger once
+        notificationTimeline.play();
+    }
+
+    private void showAskDialog() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Time's Up");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you want to delay for 5 minutes or exit?");
+
+            ButtonType delayButton = new ButtonType("Delay 5m");
+            ButtonType delayButton2 = new ButtonType("Delay 15m");
+            ButtonType delayButton3 = new ButtonType("Delay 30m");
+            ButtonType exitButton = new ButtonType("Exit", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(delayButton, delayButton2, delayButton3, exitButton);
+
+            alert.showAndWait().ifPresent(response -> {
+                if (response == delayButton) {
+                    startCountdownTimer(300, true); // Delay for 5 minutes (300 seconds)
+                } else if (response == delayButton2) {
+                    startCountdownTimer(900, true); // Delay for 15 minutes (900 seconds)
+                } else if (response == delayButton3) {
+                    startCountdownTimer(1800, true); // Delay for 30 minutes (1800 seconds)
+                } else if (response == exitButton) {
+                    System.exit(0);
+                }
+            });
+        });
+    }
+
+
     public void setUserId(int userId) {
         this.userId = userId;
         if (this.firstName == null) {
@@ -73,7 +211,12 @@ public class MainMenuController {
 
             System.out.println("userId: " + userId);
         }
+        applyModeColors();
         loadSavedColors();
+        AppSettings.loadModeFromDatabase(userId);
+
+        // Load the time limits from the database
+        loadTimeLimits();
     }
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -108,6 +251,7 @@ public class MainMenuController {
     public void switchScene(ActionEvent event, SceneType sceneType) {
         String fxmlFile = "";
         String title = "Explorer";
+        // Stop the countdown timer if it is running
 
         switch (sceneType) {
             case INTERNET:
@@ -145,14 +289,18 @@ public class MainMenuController {
             Color backgroundColor = (Color) paneMenu.getBackground().getFills().get(0).getFill();
             Color textColor = (Color) lblName.getTextFill();
             Color buttonColor = (Color) btnExplorer.getBackground().getFills().get(0).getFill();
+            int hours = limitValue / 3600;
+            int minutes = (limitValue % 3600) / 60;
+            int seconds = limitValue % 60;
 
             switch (sceneType) {
                 case INTERNET:
                     InternetExplorerController internetController = fxmlLoader.getController();
                     internetController.setUserId(userId);
                     internetController.setFirstName(firstName);
-                    //setInternetExplorerController(internetController);
                     internetController.applyColors(backgroundColor, textColor, buttonColor);
+                    internetController.applyModeColors();
+
                     break;
 
                 case REPORT:
@@ -161,14 +309,16 @@ public class MainMenuController {
                     reportController.displayLineChart();
                     reportController.displayBarChart();
                     reportController.applyColors(backgroundColor, textColor, buttonColor);
+                    reportController.applyModeColors();
                     break;
 
                 case WEBE:
                     WellBeingTipsController webeController = fxmlLoader.getController();
                     webeController.setUserId(userId);
                     webeController.setFirstName(firstName);
-                    //setWellBeingTipsController(webeController);
+                    webeController.setUserType(accType);
                     webeController.applyColors(backgroundColor, textColor, buttonColor);
+                    webeController.applyModeColors();
                     break;
 
                 case USER_PROFILE:
@@ -177,12 +327,17 @@ public class MainMenuController {
                     userProfileController.loadQuestions();
                     userProfileController.displayUserProfile();
                     userProfileController.applyColors(backgroundColor, textColor, buttonColor);
+                    userProfileController.applyModeColors();
+                    userProfileController.setUserType(accType);
                     break;
 
                 case SETTING:
                     SettingController settingController = fxmlLoader.getController();
                     settingController.setUserId(userId);
+                    settingController.setFirstName(firstName);
+                    settingController.setTimeLimits(hours, minutes, seconds, active, limitType);
                     settingController.applyColors(backgroundColor, textColor, buttonColor);
+                    settingController.applyModeColors();
                     break;
 
                 case CONTACT:
@@ -190,10 +345,12 @@ public class MainMenuController {
                         DeveloperController developerController = fxmlLoader.getController();
                         developerController.displayTable();
                         developerController.applyColors(backgroundColor, textColor, buttonColor);
+                        developerController.applyModeColors();
                     } else {
                         ContactController contactController = fxmlLoader.getController();
                         contactController.setUserId(userId);
                         contactController.applyColors(backgroundColor, textColor, buttonColor);
+                        contactController.applyModeColors();
                     }
                     break;
             }
@@ -207,6 +364,7 @@ public class MainMenuController {
             e.printStackTrace();
         }
         if (sceneType == SceneType.SETTING) {
+            stopCountdownTimer();
             Stage stage = (Stage) btnLogOut.getScene().getWindow();
             stage.close();
         }
@@ -221,6 +379,7 @@ public class MainMenuController {
     }
 
     public void btnLogOutOnAction(ActionEvent e) {
+        stopCountdownTimer();
         Alert alert = createAlert(Alert.AlertType.CONFIRMATION, "Logout Confirmation", "Logging out", "Are you sure you want to log out?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -314,5 +473,34 @@ public class MainMenuController {
     private void closeCurrentWindow() {
         Stage stage = (Stage) btnLogOut.getScene().getWindow();
         stage.close();
+    }
+
+    public void applyModeColors() {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+
+        String currentMode = AppSettings.getCurrentMode();
+        double opacity = AppSettings.MODE_AUTO.equals(currentMode) ? 0.0 : 0.5; // 0% for auto, 70% for others
+
+        updateLabelBackgroundColor(opacity);
+    }
+
+    public void updateLabelBackgroundColor(double opacity) {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+        Color backgroundColor = AppSettings.getCurrentModeColorWithOpacity(opacity);
+        lblBkGrd.setStyle("-fx-background-color: " + toRgbaColor(backgroundColor) + ";");
+    }
+
+    private String toRgbaColor(Color color) {
+        return String.format("rgba(%d, %d, %d, %.2f)",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255),
+                color.getOpacity());
     }
 }

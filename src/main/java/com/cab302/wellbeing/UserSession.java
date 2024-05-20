@@ -1,24 +1,4 @@
-package com.cab302.wellbeing;//public class UserSession {
-//    private static UserSession instance = new UserSession();
-//    private int currentUserId;
-//
-//    private UserSession() {}  // Private constructor to prevent external instantiation
-//
-//    public static UserSession getInstance() {
-//        return instance;
-//    }
-//
-//    public int getCurrentUserId() {
-//        return currentUserId;
-//    }
-//
-//    public void setCurrentUserId(int userId) {
-//        this.currentUserId = userId;
-//    }
-//}
-
-//package com.cab302.wellbeing;
-//
+package com.cab302.wellbeing;
 import java.util.HashMap;
 import java.util.Map;
 

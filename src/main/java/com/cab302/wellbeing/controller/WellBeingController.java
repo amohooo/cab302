@@ -49,6 +49,7 @@ public class WellBeingController {
             mainMenuController.setFirstName(firstName);
             mainMenuController.setUserId(userId);
             mainMenuController.setAccType(accType);
+            mainMenuController.applyModeColors();
 
             //Scene scene = new Scene(root);
             Stage stage;
@@ -115,10 +116,10 @@ public class WellBeingController {
                     lblLoginMsg.setText("Welcome " + firstName);
                     UserSession.getInstance().setCurrentUserId(userId);
 
-                    PauseTransition delay = new PauseTransition(Duration.seconds(0.1));
-                    delay.setOnFinished(event -> switchToMainMenuScene(e, firstName, accType, userId));  // `e` can be `null`
-                    delay.play();
-
+//                    PauseTransition delay = new PauseTransition(Duration.seconds(0.1));
+//                    delay.setOnFinished(event -> switchToMainMenuScene(e, firstName, accType, userId));  // `e` can be `null`
+//                    delay.play();
+                    switchToMainMenuScene(e, firstName, accType, userId);
                 } else {
                     lblLoginMsg.setText("Your username or password is wrong");
                 }

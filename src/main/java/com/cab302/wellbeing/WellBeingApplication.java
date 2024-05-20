@@ -28,4 +28,5 @@ public class WellBeingApplication extends Application {
         dbConnection.initializeAndInsertUser();
         launch();
     }
+
 }

@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="paneMenu" blendMode="MULTIPLY" prefHeight="711.0" prefWidth="841.0" style="-fx-background-color: E1E5F0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.MainMenuController">
+<AnchorPane fx:id="paneMenu" blendMode="MULTIPLY" prefHeight="711.0" prefWidth="841.0" style="-fx-background-color: E1E5F0;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cab302.wellbeing.controller.MainMenuController">
    <children>
+      <Label fx:id="lblBkGrd" layoutX="239.0" layoutY="64.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <Button fx:id="btnExplorer" layoutX="56.0" layoutY="151.0" maxHeight="202.0" maxWidth="202.0" minHeight="198.0" minWidth="198.0" mnemonicParsing="false" onAction="#handleInternetButton" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #009ee0;" text="Internet Explorer" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="Segoe Print Bold" size="30.0" />

@@ -1,5 +1,6 @@
 package com.cab302.wellbeing.controller;
 
+import com.cab302.wellbeing.AppSettings;
 import com.cab302.wellbeing.DataBaseConnection;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -43,6 +44,7 @@ public class ReportController {
     public Button btnHist, btnDnld, btnCancel;
     @FXML
     public Pane paneReport;
+    public Label lblBkGrd;
 
     @FXML
     public LineChart lcDailyUsage;
@@ -51,18 +53,32 @@ public class ReportController {
     public BarChart bcWebsiteUsage;
 
     int userId;
+    String firstName;
 
     private DataBaseConnection dbConnection = new DataBaseConnection();
 
     public void setUserId(int userId) {
         this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
     }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
     public void btnHistoryOnAction(){
+        Color backgroundColor = (Color) paneReport.getBackground().getFills().get(0).getFill();
+        Color textColor = (Color) lblBkGrd.getTextFill();
+        Color buttonColor = (Color) btnHist.getBackground().getFills().get(0).getFill();
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cab302/wellbeing/BrowsingHistory.fxml"));
             Parent root1 = fxmlLoader.load();
+            BrowsingHistoryController browsingHistoryController = fxmlLoader.getController();
             Stage stage = new Stage();
+            browsingHistoryController.applyModeColors();
+            browsingHistoryController.applyColors(backgroundColor, textColor, buttonColor);
+            setUserId(userId);
+            setFirstName(firstName);
+            System.out.println("userId: " + userId);
+            System.out.println("firstName: " + firstName);
             stage.setTitle("History");
             stage.setScene(new Scene(root1));
             stage.setResizable(true);
@@ -223,6 +239,34 @@ public class ReportController {
     private String getHexColor(Color color) {
         return String.format("#%02x%02x%02x", (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+    }
+    public void applyModeColors() {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+
+        String currentMode = AppSettings.getCurrentMode();
+        double opacity = AppSettings.MODE_AUTO.equals(currentMode) ? 0.0 : 0.5; // 0% for auto, 70% for others
+
+        updateLabelBackgroundColor(opacity);
+    }
+
+    public void updateLabelBackgroundColor(double opacity) {
+        if (lblBkGrd == null) {
+            System.out.println("lblBkGrd is null!");
+            return;
+        }
+        Color backgroundColor = AppSettings.getCurrentModeColorWithOpacity(opacity);
+        lblBkGrd.setStyle("-fx-background-color: " + toRgbaColor(backgroundColor) + ";");
+    }
+
+    private String toRgbaColor(Color color) {
+        return String.format("rgba(%d, %d, %d, %.2f)",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255),
+                color.getOpacity());
     }
 }
 
