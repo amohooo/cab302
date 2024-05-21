@@ -1,7 +1,9 @@
 package com.cab302.wellbeing.controller;
 
 import com.cab302.wellbeing.AppSettings;
+import com.cab302.wellbeing.ChatClientThread2;
 import com.cab302.wellbeing.DataBaseConnection;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,6 +14,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,20 +37,106 @@ public class ContactController {
      */
 
     @FXML
-    private Button btnCancel, btnSend;
+    private Button btnCancel, btnSend, btnConnect, btnChat;
     @FXML
-    private Label lblBkGrd, lblMsg, lblEmail, lblContact, lblCall;
+    private Label lblBkGrd, lblMsg, lblEmail;
     @FXML
     private Pane paneContact;
     @FXML
-    private TextField txtEmail;
+    private TextField txtEmail, txtChat;
     @FXML
-    private TextArea txtMessage;
+    private TextArea txtMessage, txtDisplay;
     @FXML
     private Stage stage;
     int userId;
-
+    private Socket socket = null;
+    private DataOutputStream streamOut = null;
+    private ChatClientThread2 client2 = null;
+    private String serverName = "localhost";
+    private int serverPort = 4445;
     private DataBaseConnection dbConnection = new DataBaseConnection();
+    @FXML
+    private void initialize() {
+        btnChat.setOnAction(this::sendMessage);
+        btnConnect.setOnAction(this::connectToServer);
+        btnCancel.setOnAction(this::closeConnection);
+    }
+    @FXML
+    private void sendMessage(ActionEvent e) {
+        send();
+        txtDisplay.requestFocus();
+    }
+
+    @FXML
+    private void connectToServer(ActionEvent e) {
+        connect(serverName, serverPort);
+    }
+
+    private void connect(String serverName, int serverPort) {
+        println("Establishing connection. Please wait ...");
+        try {
+            socket = new Socket(serverName, serverPort);
+            println("Connected: " + socket);
+            open();
+        } catch (UnknownHostException ex) {
+            println("Host unknown: " + ex.getMessage());
+        } catch (IOException ex) {
+            println("Unexpected exception: " + ex.getMessage());
+        }
+    }
+
+    private void send() {
+        try {
+            streamOut.writeUTF(txtChat.getText());
+            streamOut.flush();
+            txtChat.setText("");
+        } catch (IOException ex) {
+            println("Sending error: " + ex.getMessage());
+            close();
+        }
+    }
+
+    public void handle(String msg) {
+        Platform.runLater(() -> {
+            println(msg);
+            lblMsg.setText("Message from our team: " + msg);
+        });
+    }
+
+    private void open() {
+        try {
+            streamOut = new DataOutputStream(socket.getOutputStream());
+            client2 = new ChatClientThread2(this, socket);
+        } catch (IOException ex) {
+            println("Error opening output stream: " + ex);
+        }
+    }
+
+    @FXML
+    private void closeConnection(ActionEvent e) {
+        close();
+    }
+
+    public void close() {
+        try {
+            if (streamOut != null) {
+                streamOut.close();
+            }
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException ex) {
+            println("Error closing: " + ex.getMessage());
+        }
+
+        if (client2 != null) {
+            client2.close();
+        }
+    }
+
+    void println(String msg) {
+        txtDisplay.appendText(msg + "\n");
+    }
 
     public void setUserId(int userId) {
         this.userId = userId;  // Now you can use this userId to store browsing data linked to the user
@@ -146,17 +239,17 @@ public class ContactController {
         if (btnSend != null) {
             btnSend.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
         }
+        if (btnConnect != null) {
+            btnConnect.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
+        if (btnChat != null) {
+            btnChat.setStyle("-fx-background-color: " + buttonHex + "; -fx-text-fill: " + textHex + ";");
+        }
         if (lblMsg != null) {
             lblMsg.setStyle("-fx-text-fill: " + textHex + ";");
         }
         if (lblEmail != null) {
             lblEmail.setStyle("-fx-text-fill: " + textHex + ";");
-        }
-        if (lblContact != null) {
-            lblContact.setStyle("-fx-text-fill: " + textHex + ";");
-        }
-        if (lblCall != null) {
-            lblCall.setStyle("-fx-text-fill: " + textHex + ";");
         }
         if (paneContact != null) {
             paneContact.setStyle("-fx-background-color: " + backgroundHex + ";");
